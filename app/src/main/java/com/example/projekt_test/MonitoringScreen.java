@@ -1,13 +1,6 @@
 package com.example.projekt_test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,51 +8,62 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ObservableInt;
+import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.example.projekt_test.databinding.FragmentBTLOGBinding;
+import com.google.android.material.tabs.TabItem;
+import com.google.android.material.tabs.TabLayout;
 
-public class MonitoringScreen extends Activity {
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class MonitoringScreen extends FragmentActivity {
 
     private static final String TAG = "BlueTest5-MainActivity";
+
+    //region BLUETOOTH
     private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
     private ReadInput mReadThread = null;
     private static final String BT_TAG = "BT_Monitoring";
-
     private boolean mIsUserInitiatedDisconnect = false;
-
-    // All controls here
-    private TextView mTxtReceive;
-    private Button mBtnClearInput;
-    private ScrollView scrollView;
-    private CheckBox chkScroll;
-    private CheckBox chkReceiveText;
-
     private boolean mIsBluetoothConnected = false;
-
     private BluetoothDevice mDevice;
-
     private ProgressDialog progressDialog;
+    //endregion
 
+    //region page_BT_LOG
+    private boolean chkScroll_checked;
+    private boolean chkReceiveText_checked;
+    Data BT_data = new Data();
+    public void setChkScroll_checked(boolean chkScroll_checked) {
+        this.chkScroll_checked = chkScroll_checked;
+    }
+
+    public void setChkReceiveText_checked(boolean chkReceiveText_checked) {
+        this.chkReceiveText_checked = chkReceiveText_checked;
+    }
+    //endregion
+
+    private FragmentBTLOGBinding binding;
+
+    private ScrollView scrollView;
+    private TextView mTxtReceive;
     private List<Number> BPM = new ArrayList<Number>();
     private List<Number> SPO2 = new ArrayList<Number>();
     String[] temp = new String[4];
-    String[] slideHeading = new String[4];
-    String[] slideDesc = new String[4];
-    int[] slideValue = new int[4];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,32 +71,58 @@ public class MonitoringScreen extends Activity {
         setContentView(R.layout.activity_monitoring_screen);
         ActivityHelper.initialize(this);
 
+
+
+
+
+        //pages
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        TabItem BPM_tab = findViewById(R.id.BPM_tab);
+        TabItem SPO2_tab = findViewById(R.id.SPO2_tab);
+        TabItem BTLOG_tab = findViewById(R.id.BTLOG_tab);
+        ViewPager2 viewPager = findViewById(R.id.viewPager);
+        PagerAdapter pagerAdapter = new PagerAdapter(this, tabLayout.getTabCount());
+        viewPager.setAdapter(pagerAdapter);
+        //!pages
+
+        //region page_BT_LOG
+        chkScroll_checked = true;
+        chkReceiveText_checked = true;
+        //odczytBPM = 0;
+        //odczytSPO2 = 0;
+        //endregion
+
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
         mDevice = b.getParcelable(MainActivity.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
         Log.d(TAG, "Ready");
-        mTxtReceive = (TextView) findViewById(R.id.txtReceive);
-        chkScroll = (CheckBox) findViewById(R.id.chkScroll);
-        chkReceiveText = (CheckBox) findViewById(R.id.chkReceiveText);
-        scrollView = (ScrollView) findViewById(R.id.viewScroll);
-        mBtnClearInput = (Button) findViewById(R.id.btnClearInput);
-        mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
-        mBtnClearInput.setOnClickListener(new OnClickListener() {
+
+        //mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
+        mTxtReceive = (TextView)findViewById(R.id.txtReceive);
+        scrollView = (ScrollView) findViewById((R.id.viewScroll));
+
+        /*mBtnClearInput.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
                 mTxtReceive.setText("");
             }
         });
+*/
+        Data BT_data = new Data();
 
+       // binding = DataBindingUtil.setContentView(this, R.layout.fragment_b_t_l_o_g);
+       // binding.setData(BT_data);
     }
 
     private class ReadInput implements Runnable {
 
         private boolean bStop = false;
         private Thread t;
+
+        BTLOGFragment btlogFragment = new BTLOGFragment();
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
@@ -124,18 +154,18 @@ public class MonitoringScreen extends Activity {
                             Log.d(BT_TAG, "TEMP: SPO2 = " + temp[0] + ", SPO2Valid = " + temp[1] + ", BPM = " + temp[2] + ", BPMValid = " + Integer.parseInt(temp[3].trim()));
                             if (temp[3].trim().equals("1")) {
                                 BPM.add(Integer.parseInt(temp[2].trim()));
-                                ((TextView) findViewById(R.id.BPM_display)).setText(temp[2]);
+                                BT_data.BPM.set(temp[2].trim());
                                 Log.d(BT_TAG, "BPM_DISP: " + temp[2]);
                             }
 
                             if (temp[1].trim().equals("1")) {
                                 SPO2.add(Integer.parseInt(temp[0].trim()));
-                                ((TextView) findViewById(R.id.SPO2_display)).setText(temp[0]);
+                                BT_data.SPO2.set(temp[0].trim());
                                 Log.d(BT_TAG, "SPO2_DISP" + temp[0]);
                             }
                         }
-
-                        if (chkReceiveText.isChecked()) {
+/*
+                        if (chkReceiveText_checked == true) {
                             mTxtReceive.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -152,7 +182,7 @@ public class MonitoringScreen extends Activity {
                                         mTxtReceive.getEditableText().delete(0, txtLength - mMaxChars);
                                     }
 
-                                    if (chkScroll.isChecked()) { // Scroll only if this is checked
+                                    if (chkScroll_checked == true) { // Scroll only if this is checked
                                         scrollView.post(new Runnable() { // Snippet from http://stackoverflow.com/a/4612082/1287554
                                             @Override
                                             public void run() {
@@ -163,7 +193,7 @@ public class MonitoringScreen extends Activity {
                                 }
                             });
                         }
-
+*/
                     }
                     Thread.sleep(500);
                 }

@@ -11,92 +11,85 @@
     <!-- TODO: Update blank fragment layout -->
 
 
-
-    <TextView
-        android:id="@+id/textView_BTLOG_Heading"
-        android:layout_width="411dp"
-        android:layout_height="34dp"
-        android:layout_marginTop="16dp"
-        android:text="BTLOG"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Button
-            android:id="@+id/btnClearInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:text="Clear Input" />
-
-
         <TextView
-            android:id="@+id/BPM_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Current BPM:" />
+            android:id="@+id/textView_BTLOG_Heading"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:layout_marginTop="64dp"
+            android:text="BTLOG"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/BPM_display"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text='0' />
-
-        <TextView
-            android:id="@+id/SPO2_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Current SPO2:" />
-
-        <TextView
-            android:id="@+id/SPO2_display"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text='0' />
-
-        <CheckBox
-            android:id="@+id/chkScroll"
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="0dp"
-            android:checked="true"
-            android:text="Scroll" />
+            android:layout_height="0dp"
+            android:layout_marginTop="150dp"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <CheckBox
-            android:id="@+id/chkReceiveText"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="Read" />
+            <Button
+                android:id="@+id/btnClearInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear Input" />
 
-        <ScrollView
-            android:id="@+id/viewScroll"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
 
             <TextView
-                android:id="@+id/txtReceive"
+                android:id="@+id/BPM_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Current BPM:" />
+
+            <TextView
+                android:id="@+id/BPM_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text='0' />
+
+            <TextView
+                android:id="@+id/SPO2_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Current SPO2:" />
+
+            <TextView
+                android:id="@+id/SPO2_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text='0' />
+
+            <CheckBox
+                android:id="@+id/chkScroll"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_marginTop="20dp"
-                android:background="#eeeeee"
-                android:hint="Message shows up here ..."
-                android:scrollbars="vertical"
-                android:typeface="monospace" />
-        </ScrollView>
+                android:layout_margin="0dp"
+                android:checked="true"
+                android:text="Scroll" />
 
-    </LinearLayout>
+            <ScrollView
+                android:id="@+id/viewScroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/txtReceive"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:layout_marginTop="20dp"
+                    android:background="#eeeeee"
+                    android:hint="Message shows up here ..."
+                    android:scrollbars="vertical"
+                    android:typeface="monospace" />
+            </ScrollView>
+
+        </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

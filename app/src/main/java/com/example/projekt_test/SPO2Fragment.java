@@ -1,5 +1,6 @@
 package com.example.projekt_test;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -18,6 +19,7 @@ public class SPO2Fragment extends Fragment {
 
     private Data data;
     private TextView textValue;
+    int SPO2_value;
 
 
     public SPO2Fragment() {
@@ -29,6 +31,7 @@ public class SPO2Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        int SPO2_value = 0;
         View rootView = inflater.inflate(R.layout.fragment_s_p_o2, container, false);
         textValue = (TextView)rootView.findViewById(R.id.textView_SPO2_Value);
         return rootView;
@@ -43,7 +46,23 @@ public class SPO2Fragment extends Fragment {
             @Override
             public void onChanged(String s) {
                 Log.d("BPM_fragment", "DATA UPDATE");
-                textValue.setText(data.getSPO2().getValue());
+                String SPO2 = data.getSPO2().getValue();
+                if(SPO2.trim() != "") {
+                    SPO2_value = Integer.parseInt(SPO2.trim());
+                }
+                textValue.setText(SPO2);
+                if(SPO2_value > 96){
+                    textValue.setTextColor(Color.parseColor("#00ff00"));
+                }
+                else if(SPO2_value <= 96 && SPO2_value > 93){
+                    textValue.setTextColor(Color.parseColor("#ffff00"));
+                }
+                else if(SPO2_value <= 93 && SPO2_value > 89){
+                    textValue.setTextColor(Color.parseColor("#ffad00"));
+                }
+                else if(SPO2_value <= 89){
+                    textValue.setTextColor(Color.parseColor("#ff2300"));
+                }
             }
         });
     }

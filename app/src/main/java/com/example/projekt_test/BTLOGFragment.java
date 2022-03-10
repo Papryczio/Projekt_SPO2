@@ -19,6 +19,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class BTLOGFragment extends Fragment {
 
     //region elementy_graficzne
@@ -43,28 +46,17 @@ public class BTLOGFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_b_t_l_o_g, container, false);
         data = new Data();
-        //kontrola checkBoxów
             chkScroll = (CheckBox) rootView.findViewById(R.id.chkScroll);
-            chkReceiveText = (CheckBox) rootView.findViewById(R.id.chkReceiveText);
 
-            chkReceiveText.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                        monitoringScreen.setChkReceiveText_checked(isChecked);
-                }
-            });
-
-            chkScroll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                        monitoringScreen.setChkScroll_checked(isChecked);
-                }
-            });
         //!kontrola checkBoxów
 
-        //kontrola TextView
+        //region GUI
             mTxtReceive = (TextView)rootView.findViewById(R.id.txtReceive);
             mBtnClearInput = (Button) rootView.findViewById(R.id.btnClearInput);
             BPM_textView = (TextView) rootView.findViewById(R.id.BPM_display);
             SPO2_textView = (TextView) rootView.findViewById(R.id.SPO2_display);
+            scrollView = (ScrollView) rootView.findViewById(R.id.viewScroll);
+        //endregion
 
             mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
             mBtnClearInput.setOnClickListener(new OnClickListener() {
@@ -73,8 +65,14 @@ public class BTLOGFragment extends Fragment {
                     mTxtReceive.setText("");
                 }
             });
+        return rootView;
+    }
+
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         data = new ViewModelProvider(requireActivity()).get(Data.class);
+
         data.getBPM().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -91,6 +89,26 @@ public class BTLOGFragment extends Fragment {
             }
         });
 
-        return rootView;
+        data.getBTLOG().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Log.d("BTLOG_fragment", "BTLOG DATA UPDATE");
+                Date now = new Date();
+                long timestamp = now.getTime();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                String dateStr = sdf.format(timestamp);
+                mTxtReceive.append(dateStr + "\n");
+                mTxtReceive.append(data.getBTLOG().getValue());
+                if(chkScroll.isChecked()) {
+                    scrollView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollView.fullScroll(View.FOCUS_DOWN);
+                        }
+                    });
+                }
+            }
+        });
     }
+
 }

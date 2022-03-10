@@ -64,8 +64,6 @@ public class MonitoringScreen extends FragmentActivity {
     }
     //endregion
 
-    private FragmentBTLOGBinding binding;
-
     private ScrollView scrollView;
     private TextView mTxtReceive;
     private List<Number> BPM = new ArrayList<Number>();
@@ -140,7 +138,6 @@ public class MonitoringScreen extends FragmentActivity {
                         for (i = 0; i < buffer.length && buffer[i] != 0; i++) {
                         }
                         final String strInput = new String(buffer, 0, i);
-                        // dzielenie wiadomości na SPO2 i BPM
 
                         temp = strInput.split("\n");
                         if(!(temp[0].trim().equals("0")) && !(temp[0].trim().equals("1"))) {
@@ -158,39 +155,8 @@ public class MonitoringScreen extends FragmentActivity {
 
                                 Log.d(BT_TAG, "SPO2_DISP" + data.getSPO2().getValue());
                             }
-
-
                         }
-/*
-                       if (chkReceiveText_checked == true) {
-                            mTxtReceive.post(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    Date now = new Date();
-                                    long timestamp = now.getTime();
-                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-                                    String dateStr = sdf.format(timestamp);
-                                    mTxtReceive.append(dateStr + "\n");
-                                    mTxtReceive.append(strInput);
-
-                                    int txtLength = mTxtReceive.getEditableText().length();
-                                    if(txtLength > mMaxChars){
-                                        mTxtReceive.getEditableText().delete(0, txtLength - mMaxChars);
-                                    }
-
-                                    if (chkScroll_checked == true) { // Scroll only if this is checked
-                                        scrollView.post(new Runnable() { // Snippet from http://stackoverflow.com/a/4612082/1287554
-                                            @Override
-                                            public void run() {
-                                                scrollView.fullScroll(View.FOCUS_DOWN);
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        }
-*/
+                        data.getBTLOG().postValue(strInput);
                     }
                     Thread.sleep(500);
                 }

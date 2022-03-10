@@ -1,6 +1,7 @@
 package com.example.projekt_test;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -8,7 +9,9 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +19,8 @@ import android.widget.Toast;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ObservableInt;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.projekt_test.databinding.FragmentBTLOGBinding;
@@ -24,7 +29,9 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +54,7 @@ public class MonitoringScreen extends FragmentActivity {
     //region page_BT_LOG
     private boolean chkScroll_checked;
     private boolean chkReceiveText_checked;
-    Data BT_data = new Data();
+
     public void setChkScroll_checked(boolean chkScroll_checked) {
         this.chkScroll_checked = chkScroll_checked;
     }
@@ -65,15 +72,14 @@ public class MonitoringScreen extends FragmentActivity {
     private List<Number> SPO2 = new ArrayList<Number>();
     String[] temp = new String[4];
 
+    Handler handler;
+    Data data;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitoring_screen);
         ActivityHelper.initialize(this);
-
-
-
-
 
         //pages
         TabLayout tabLayout = findViewById(R.id.tabLayout);
@@ -88,8 +94,6 @@ public class MonitoringScreen extends FragmentActivity {
         //region page_BT_LOG
         chkScroll_checked = true;
         chkReceiveText_checked = true;
-        //odczytBPM = 0;
-        //odczytSPO2 = 0;
         //endregion
 
         Intent intent = getIntent();
@@ -99,22 +103,11 @@ public class MonitoringScreen extends FragmentActivity {
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
         Log.d(TAG, "Ready");
 
-        //mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
         mTxtReceive = (TextView)findViewById(R.id.txtReceive);
         scrollView = (ScrollView) findViewById((R.id.viewScroll));
 
-        /*mBtnClearInput.setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View arg0) {
-                mTxtReceive.setText("");
-            }
-        });
-*/
-        Data BT_data = new Data();
-
-       // binding = DataBindingUtil.setContentView(this, R.layout.fragment_b_t_l_o_g);
-       // binding.setData(BT_data);
+        data = new ViewModelProvider(this).get(Data.class);
     }
 
     private class ReadInput implements Runnable {
@@ -154,18 +147,22 @@ public class MonitoringScreen extends FragmentActivity {
                             Log.d(BT_TAG, "TEMP: SPO2 = " + temp[0] + ", SPO2Valid = " + temp[1] + ", BPM = " + temp[2] + ", BPMValid = " + Integer.parseInt(temp[3].trim()));
                             if (temp[3].trim().equals("1")) {
                                 BPM.add(Integer.parseInt(temp[2].trim()));
-                                BT_data.BPM.set(temp[2].trim());
-                                Log.d(BT_TAG, "BPM_DISP: " + temp[2]);
+                                data.getBPM().postValue(temp[2]);
+
+                                Log.d(BT_TAG, "BPM_DISP: " + data.getBPM().getValue());
                             }
 
                             if (temp[1].trim().equals("1")) {
                                 SPO2.add(Integer.parseInt(temp[0].trim()));
-                                BT_data.SPO2.set(temp[0].trim());
-                                Log.d(BT_TAG, "SPO2_DISP" + temp[0]);
+                                data.getSPO2().postValue(temp[0]);
+
+                                Log.d(BT_TAG, "SPO2_DISP" + data.getSPO2().getValue());
                             }
+
+
                         }
 /*
-                        if (chkReceiveText_checked == true) {
+                       if (chkReceiveText_checked == true) {
                             mTxtReceive.post(new Runnable() {
                                 @Override
                                 public void run() {

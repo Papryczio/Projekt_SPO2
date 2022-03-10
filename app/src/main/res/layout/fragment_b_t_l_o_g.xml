@@ -3,9 +3,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    <data>
-        <variable name="data" type="com.example.projekt_test.Data"/>
-    </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -52,7 +49,7 @@
             android:id="@+id/BPM_display"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text='@{data.BPM}' />
+            android:text='0' />
 
         <TextView
             android:id="@+id/SPO2_text"
@@ -64,7 +61,7 @@
             android:id="@+id/SPO2_display"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text='@{data.SPO2}' />
+            android:text='0' />
 
         <CheckBox
             android:id="@+id/chkScroll"

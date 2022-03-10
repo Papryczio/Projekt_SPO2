@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
@@ -54,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
         search = (Button) findViewById(R.id.search);
         connect = (Button) findViewById(R.id.connect);
-
         listView = (ListView) findViewById(R.id.listview);
+
 
         if (savedInstanceState != null) {
             ArrayList<BluetoothDevice> list = savedInstanceState.getParcelableArrayList(DEVICE_LIST);

@@ -1,31 +1,27 @@
 package com.example.projekt_test;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-
 import android.text.method.ScrollingMovementMethod;
-import android.view.View.OnClickListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.databinding.ObservableField;
-import androidx.databinding.ObservableInt;
 
-import com.example.projekt_test.databinding.FragmentBTLOGBinding;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 public class BTLOGFragment extends Fragment {
 
-    //region elementy
+    //region elementy_graficzne
     private CheckBox chkScroll;
     private CheckBox chkReceiveText;
     private TextView mTxtReceive;
@@ -33,9 +29,10 @@ public class BTLOGFragment extends Fragment {
     private TextView SPO2_textView;
     private Button mBtnClearInput;
     private ScrollView scrollView;
-    //endregion
+    //endregion_graficz
 
     MonitoringScreen monitoringScreen = new MonitoringScreen();
+    private Data data;
 
     public BTLOGFragment() {
         // Required empty public constructor
@@ -45,7 +42,7 @@ public class BTLOGFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_b_t_l_o_g, container, false);
-
+        data = new Data();
         //kontrola checkBoxów
             chkScroll = (CheckBox) rootView.findViewById(R.id.chkScroll);
             chkReceiveText = (CheckBox) rootView.findViewById(R.id.chkReceiveText);
@@ -76,17 +73,24 @@ public class BTLOGFragment extends Fragment {
                     mTxtReceive.setText("");
                 }
             });
-/*
-            Data BT_data = new Data();
 
-            FragmentBTLOGBinding binding = FragmentBTLOGBinding.inflate(inflater, container, false);
-            rootView = binding.getRoot();
-            binding.setLifecycleOwner(this);
-            binding.setData(BT_data);
+        data = new ViewModelProvider(requireActivity()).get(Data.class);
+        data.getBPM().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Log.d("BTLOG_fragment", "BPM DATA UPDATE");
+                BPM_textView.setText(data.getBPM().getValue());
+            }
+        });
 
-        //!kontrola TextView
-*/
+        data.getSPO2().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Log.d("BTLOG_fragment", "SPO2 DATA UPDATE");
+                SPO2_textView.setText(data.getSPO2().getValue());
+            }
+        });
+
         return rootView;
     }
-
 }

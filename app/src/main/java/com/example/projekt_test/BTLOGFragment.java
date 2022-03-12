@@ -32,7 +32,7 @@ public class BTLOGFragment extends Fragment {
     private TextView SPO2_textView;
     private Button mBtnClearInput;
     private ScrollView scrollView;
-    //endregion_graficz
+    //endregion
 
     MonitoringScreen monitoringScreen = new MonitoringScreen();
     private Data data;

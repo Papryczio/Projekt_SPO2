@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.material.tabs.TabLayoutMediator;
+
 
 public class BPMFragment extends Fragment {
 
@@ -31,6 +33,7 @@ public class BPMFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_b_p_m, container, false);
+
         textValue = (TextView)rootView.findViewById(R.id.textView_BPM_Value);
         return rootView;
 

@@ -26,6 +26,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.projekt_test.databinding.FragmentBTLOGBinding;
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,9 +85,29 @@ public class MonitoringScreen extends FragmentActivity {
         TabItem BPM_tab = findViewById(R.id.BPM_tab);
         TabItem SPO2_tab = findViewById(R.id.SPO2_tab);
         TabItem BTLOG_tab = findViewById(R.id.BTLOG_tab);
+        String[] tabTitles = {"BPM", "SPO2", "BT LOG"};
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         PagerAdapter pagerAdapter = new PagerAdapter(this, tabLayout.getTabCount());
         viewPager.setAdapter(pagerAdapter);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> tab.setText(tabTitles[position])
+        ).attach();
         //!pages
 
         //region page_BT_LOG

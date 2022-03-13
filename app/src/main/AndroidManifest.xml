@@ -18,6 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Projekt_test">
         <activity
+            android:name=".ModifyUser"
+            android:exported="false" />
+        <activity
+            android:name=".ChangeUser"
+            android:exported="false" />
+        <activity
             android:name=".addNewUser"
             android:exported="false" />
         <activity

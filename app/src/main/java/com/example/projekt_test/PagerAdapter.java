@@ -25,6 +25,8 @@ public class PagerAdapter extends FragmentStateAdapter {
             case 1:
                 return new SPO2Fragment();
             case 2:
+                return new SettingsFragment();
+            case 3:
                 return new BTLOGFragment();
             default:
                 return null;

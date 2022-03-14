@@ -41,7 +41,6 @@ public class MonitoringScreen extends FragmentActivity {
     private static final String TAG = "BlueTest5-MainActivity";
 
     //region BLUETOOTH
-    //private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
     private ReadInput mReadThread = null;
@@ -52,27 +51,14 @@ public class MonitoringScreen extends FragmentActivity {
     private ProgressDialog progressDialog;
     //endregion
 
-    //region page_BT_LOG
-    //private boolean chkScroll_checked;
-    //private boolean chkReceiveText_checked;
-
-    //public void setChkScroll_checked(boolean chkScroll_checked) {
-    //    this.chkScroll_checked = chkScroll_checked;
-    //}
-
-    //public void setChkReceiveText_checked(boolean chkReceiveText_checked) {
-    //    this.chkReceiveText_checked = chkReceiveText_checked;
-    //}
-    //endregion
-
-    //private ScrollView scrollView;
-    //private TextView mTxtReceive;
     private List<Number> BPM = new ArrayList<Number>();
     private List<Number> SPO2 = new ArrayList<Number>();
     String[] temp = new String[4];
 
-    //Handler handler;
     Data data;
+
+    private DatabaseHelperCurrentUserID myDbID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +68,6 @@ public class MonitoringScreen extends FragmentActivity {
 
         //region pages
         TabLayout tabLayout = findViewById(R.id.tabLayout);
-        //TabItem BPM_tab = findViewById(R.id.BPM_tab);
-        //TabItem SPO2_tab = findViewById(R.id.SPO2_tab);
-        //TabItem BTLOG_tab = findViewById(R.id.BTLOG_tab);
-        //TabItem Settings = findViewById(R.id.Settings_tab);
         String[] tabTitles = {"BPM", "SPO2", "Settings", "BT LOG"};
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         PagerAdapter pagerAdapter = new PagerAdapter(this, tabLayout.getTabCount());
@@ -111,31 +93,21 @@ public class MonitoringScreen extends FragmentActivity {
         ).attach();
         //endregion
 
-        //region page_BT_LOG
-        //chkScroll_checked = true;
-        //chkReceiveText_checked = true;
-        //endregion
-
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
         mDevice = b.getParcelable(MainActivity.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
-        //mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
         Log.d(TAG, "Ready");
 
-        //mTxtReceive = (TextView)findViewById(R.id.txtReceive);
-        //scrollView = (ScrollView) findViewById((R.id.viewScroll));
-
-
         data = new ViewModelProvider(this).get(Data.class);
+
+        myDbID = new DatabaseHelperCurrentUserID(this);
     }
 
     private class ReadInput implements Runnable {
 
         private boolean bStop = false;
         private Thread t;
-
-        //BTLOGFragment btlogFragment = new BTLOGFragment();
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
@@ -172,8 +144,12 @@ public class MonitoringScreen extends FragmentActivity {
                             }
 
                             if (temp[1].trim().equals("1")) {
-                                SPO2.add(Integer.parseInt(temp[0].trim()));
-                                data.getSPO2().postValue(temp[0]);
+                                try {
+                                    SPO2.add(Integer.parseInt(temp[0].trim()));
+                                    data.getSPO2().postValue(temp[0]);
+                                } catch (Exception ex){
+
+                                }
 
                                 Log.d(BT_TAG, "SPO2_DISP" + data.getSPO2().getValue());
                             }

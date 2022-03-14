@@ -3,7 +3,6 @@
 
     <string-array name="Add_user_sex_list">
         <item>Sex</item>
-        <item>Yes, please</item>
         <item>Male</item>
         <item>Female</item>
         <item>Other</item>

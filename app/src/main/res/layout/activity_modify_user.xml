@@ -8,6 +8,8 @@
 
     <ListView
         android:id="@+id/listView_modUser"
+        android:choiceMode="singleChoice"
+        android:listSelector="@android:color/darker_gray"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="1dp"

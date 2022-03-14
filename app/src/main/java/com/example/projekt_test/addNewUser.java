@@ -66,6 +66,12 @@ public class addNewUser extends AppCompatActivity {
 
                 Log.d("ADD_NEW_USER", "User: " + name + " " + age + "y.o " + sex + " " + height + "cm " + weight + "kg ");
 
+                if(name != ""){
+                    nameText.setBackgroundColor(Color.TRANSPARENT);
+                } else {
+                    nameText.setBackgroundColor(Color.RED);
+                    valid = false;
+                }
                 if(!(age < 120 && age > 0)){
                     valid = false;
                     ageText.setBackgroundColor(Color.RED);

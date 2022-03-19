@@ -17,9 +17,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Projekt_test">
+        <service
+            android:name=".BTService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".ModifyUser_2"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ModifyUser"
             android:exported="false" />

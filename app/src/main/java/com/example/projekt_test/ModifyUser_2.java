@@ -123,7 +123,7 @@ public class ModifyUser_2 extends AppCompatActivity {
                 }
 
                 if(valid == true){
-                    myDb.updateData(String.valueOf(selectedItem), new_name, new_sex, new_age, new_height, new_weight);
+                    myDb.updateData(String.valueOf(selectedItem), new_name, new_sex, new_age, new_height, new_weight, 0);
                     Toast.makeText(getApplicationContext(),"User modified", Toast.LENGTH_LONG);
                     finish();
                 } else {

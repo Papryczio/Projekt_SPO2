@@ -13,12 +13,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 public class SettingsFragment extends Fragment {
 
     private Button newButton;
     private Button modButton;
     private Button changeButton;
-    private TextView currentUser;
+    private TextView currentUserID;
+    private TextView currentUserName;
 
     private DatabaseHelper myDb;
 
@@ -36,7 +39,23 @@ public class SettingsFragment extends Fragment {
         newButton = (Button)rootView.findViewById(R.id.addButton);
         modButton = (Button)rootView.findViewById(R.id.modButton);
         changeButton = (Button)rootView.findViewById(R.id.changeButton);
-        currentUser = (TextView)rootView.findViewById(R.id.UserIDTextView);
+        currentUserID = (TextView)rootView.findViewById(R.id.TextView_userID);
+        currentUserName = (TextView)rootView.findViewById(R.id.textView_userName);
+
+        try {
+            Cursor res = myDb.getIDAndNameofSelectedUser();
+            String ID = "null";
+            String name = "no user selected";
+            while(res.moveToNext()) {
+                ID = res.getString(0);
+                name = res.getString(1);
+            }
+            currentUserID.setText(ID);
+            currentUserName.setText(name);
+        } catch (Exception ex){
+            currentUserID.setText("---");
+            currentUserName.setText("No user selected");
+        }
 
         newButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,4 +93,5 @@ public class SettingsFragment extends Fragment {
 
         return rootView;
     }
+
 }

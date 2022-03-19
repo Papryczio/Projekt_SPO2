@@ -57,8 +57,6 @@ public class MonitoringScreen extends FragmentActivity {
 
     Data data;
 
-    private DatabaseHelperCurrentUserID myDbID;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +98,6 @@ public class MonitoringScreen extends FragmentActivity {
         Log.d(TAG, "Ready");
 
         data = new ViewModelProvider(this).get(Data.class);
-
-        myDbID = new DatabaseHelperCurrentUserID(this);
     }
 
     private class ReadInput implements Runnable {
@@ -215,6 +211,7 @@ public class MonitoringScreen extends FragmentActivity {
     private void msg(String s) {
         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
     }
+
 
     @Override
     protected void onPause() {

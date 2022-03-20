@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 public class SettingsFragment extends Fragment {
+
+    private static final String TAG = "SettingsFragment";
 
     private Button newButton;
     private Button modButton;
@@ -52,9 +53,11 @@ public class SettingsFragment extends Fragment {
             }
             currentUserID.setText(ID);
             currentUserName.setText(name);
+            Log.d(TAG, "Current user data updated");
         } catch (Exception ex){
             currentUserID.setText("---");
             currentUserName.setText("No user selected");
+            Log.d(TAG, "Current user data update failed (cannot get current user");
         }
 
         newButton.setOnClickListener(new View.OnClickListener() {
@@ -92,6 +95,26 @@ public class SettingsFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    public void onResume() {
+        try {
+            Cursor res = myDb.getIDAndNameofSelectedUser();
+            String ID = "null";
+            String name = "no user selected";
+            while(res.moveToNext()) {
+                ID = res.getString(0);
+                name = res.getString(1);
+            }
+            currentUserID.setText(ID);
+            currentUserName.setText(name);
+            Log.d(TAG, " -- on resume -- Current user data updated");
+        } catch (Exception ex){
+            currentUserID.setText("---");
+            currentUserName.setText("No user selected");
+            Log.d(TAG, " -- on resume -- Current user data update failed (cannot get current user)");
+        }
+        super.onResume();
     }
 
 }

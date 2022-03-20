@@ -51,6 +51,7 @@ public class ChangeUser extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 myDb.updateSelectedUser(String.valueOf(selectedItem));
+                finish();
             }
         });
     }

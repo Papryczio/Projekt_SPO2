@@ -1,7 +1,6 @@
 package com.example.projekt_test;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,28 +8,19 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ObservableInt;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.projekt_test.databinding.FragmentBTLOGBinding;
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +43,7 @@ public class MonitoringScreen extends FragmentActivity {
 
     private List<Number> BPM = new ArrayList<Number>();
     private List<Number> SPO2 = new ArrayList<Number>();
+    private List<Date> Date = new ArrayList<Date>();
     String[] temp = new String[4];
 
     Data data;

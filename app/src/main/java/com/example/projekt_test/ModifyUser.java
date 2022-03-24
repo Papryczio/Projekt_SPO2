@@ -33,7 +33,7 @@ public class ModifyUser extends AppCompatActivity {
         selectedItem = -1;
 
         myDb = new DatabaseHelper(this);
-        Cursor res = myDb.getAllData();
+        Cursor res = myDb.getAllUsers();
         ArrayList<StringBuffer> user_array = new ArrayList<>();
         while (res.moveToNext()) {
             StringBuffer buffer = new StringBuffer();
@@ -66,7 +66,7 @@ public class ModifyUser extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int check = myDb.deleteData(String.valueOf(selectedItem));
+                int check = myDb.deleteUser(String.valueOf(selectedItem));
                 Log.d("MODUSER: delete", "Check of item delete: " + check);
                 populateList();
             }
@@ -85,7 +85,7 @@ public class ModifyUser extends AppCompatActivity {
 
     private void populateList() {
         myDb = new DatabaseHelper(this);
-        Cursor res = myDb.getAllData();
+        Cursor res = myDb.getAllUsers();
         ArrayList<StringBuffer> user_array = new ArrayList<>();
         while (res.moveToNext()) {
             StringBuffer buffer = new StringBuffer();

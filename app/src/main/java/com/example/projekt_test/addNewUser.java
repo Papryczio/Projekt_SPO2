@@ -102,7 +102,7 @@ public class addNewUser extends AppCompatActivity {
 
                 if(valid == true) {
                     Log.d("ADD_NEW_USER", "Data added");
-                    boolean result = myDb.insertData(name, sex, age, height, weight, 0);
+                    boolean result = myDb.insertUser(name, sex, age, height, weight, 0);
                     if(result == true){
                         Toast.makeText(getApplicationContext(), "User added", Toast.LENGTH_LONG).show();
                         finish();

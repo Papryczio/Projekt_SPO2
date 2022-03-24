@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,10 +21,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 
 public class MonitoringScreen extends FragmentActivity {
@@ -41,12 +40,16 @@ public class MonitoringScreen extends FragmentActivity {
     private ProgressDialog progressDialog;
     //endregion
 
-    private List<Number> BPM = new ArrayList<Number>();
-    private List<Number> SPO2 = new ArrayList<Number>();
-    private List<Date> Date = new ArrayList<Date>();
-    String[] temp = new String[4];
+    private int BPM = 0;
+    private int SPO2 = 0;
+    private String[] temp = new String[4];
 
-    Data data;
+    private Data data;
+    private DatabaseHelper db;
+
+    private int User_ID = -1;
+    private int Date_ID = -1;
+
 
 
     @Override
@@ -89,6 +92,23 @@ public class MonitoringScreen extends FragmentActivity {
         Log.d(TAG, "Ready");
 
         data = new ViewModelProvider(this).get(Data.class);
+        db = new DatabaseHelper(this);
+
+        Cursor res = db.getIDAndNameofSelectedUser();
+        while(res.moveToNext()){
+            User_ID = Integer.parseInt(res.getString(0));
+        }
+        LocalDate localDate = LocalDate.now();
+        res = db.checkExistenceOfUserAndDate(String.valueOf(User_ID), localDate.toString());
+        if(res != null){
+            while (res.moveToNext()){
+                Date_ID = Integer.parseInt(res.getString(0));
+            }
+        }
+        else{
+            db.insertDate(localDate.toString(), String.valueOf(User_ID));
+            Date_ID = Integer.parseInt(db.maxDateID());
+        }
     }
 
     private class ReadInput implements Runnable {
@@ -123,22 +143,52 @@ public class MonitoringScreen extends FragmentActivity {
                         temp = strInput.split("\n");
                         if(!(temp[0].trim().equals("0")) && !(temp[0].trim().equals("1"))) {
                             Log.d(BT_TAG, "TEMP: SPO2 = " + temp[0] + ", SPO2Valid = " + temp[1] + ", BPM = " + temp[2] + ", BPMValid = " + Integer.parseInt(temp[3].trim()));
-                            if (temp[3].trim().equals("1")) {
-                                BPM.add(Integer.parseInt(temp[2].trim()));
-                                data.getBPM().postValue(temp[2]);
 
-                                Log.d(BT_TAG, "BPM_DISP: " + data.getBPM().getValue());
+                            // odczytanie czy ID użytkownika się nie zmieniło
+                            Cursor res = db.getIDAndNameofSelectedUser();
+                            int ID = -1;
+                            while (res.moveToNext()) {
+                                ID = Integer.parseInt(res.getString(0));
+                            }
+                            if(ID != User_ID){
+                                User_ID = ID;
+                                LocalDate localDate = LocalDate.now();
+                                res = db.checkExistenceOfUserAndDate(String.valueOf(User_ID), localDate.toString());
+                                if(res != null){
+                                    while (res.moveToNext()){
+                                        Date_ID = Integer.parseInt(res.getString(0));
+                                    }
+                                }
+                                else{
+                                    db.insertDate(localDate.toString(), String.valueOf(User_ID));
+                                    Date_ID = Integer.parseInt(db.maxDateID());
+                                }
+                            }
+                            //wpisywanie danych do bazy
+                            if (temp[3].trim().equals("1")) {
+                                try {
+                                    data.getBPM().postValue(temp[2]);
+                                    BPM = Integer.parseInt(temp[2].trim());
+                                    Log.d(BT_TAG, "BPM_DISP: " + data.getBPM().getValue());
+                                } catch (Exception ex){
+                                    Log.d(BT_TAG, "BPM data invalid");
+                                }
                             }
 
                             if (temp[1].trim().equals("1")) {
                                 try {
-                                    SPO2.add(Integer.parseInt(temp[0].trim()));
                                     data.getSPO2().postValue(temp[0]);
+                                    SPO2 = Integer.parseInt(temp[0].trim());
+                                    Log.d(BT_TAG, "SPO2_DISP" + data.getSPO2().getValue());
                                 } catch (Exception ex){
-
+                                    Log.d(BT_TAG, "SPO2 data invalid");
                                 }
-
-                                Log.d(BT_TAG, "SPO2_DISP" + data.getSPO2().getValue());
+                            }
+                            try{
+                                LocalTime localTime = LocalTime.now();
+                                db.insertData(String.valueOf(Date_ID), localTime.toString(), String.valueOf(BPM), String.valueOf(SPO2));
+                            } catch (Exception ex){
+                                Log.d(BT_TAG, "Data insertion failed");
                             }
                         }
                         data.getBTLOG().postValue(strInput);

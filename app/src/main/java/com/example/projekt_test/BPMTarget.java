@@ -1,9 +1,10 @@
 package com.example.projekt_test;
 
+import android.widget.ProgressBar;
+
 public class BPMTarget {
 
     public BPMTarget(){
-
     }
 
     private static final String TAG = "BPMTarget";
@@ -305,6 +306,50 @@ public class BPMTarget {
             range = "UNKNOWN";
         }
         return range;
+    }
+
+    public int BPMlimit(int age){
+        int bpm_max = -1;
+        if (age > 80) {
+            bpm_max = 153;
+        }
+        else if (age > 75){
+            bpm_max = 157;
+        }
+        else if (age > 70){
+            bpm_max = 160;
+        }
+        else if (age > 65){
+            bpm_max = 163;
+        }
+        else if (age > 60){
+            bpm_max = 167;
+        }
+        else if (age > 55){
+            bpm_max = 170;
+        }
+        else if (age > 50){
+            bpm_max = 173;
+        }
+        else if (age > 45){
+            bpm_max = 177;
+        }
+        else if (age > 40){
+            bpm_max = 180;
+        }
+        else if (age > 35){
+            bpm_max = 183;
+        }
+        else if (age > 30){
+            bpm_max = 187;
+        }
+        else if (age > 25){
+            bpm_max = 190;
+        }
+        else if (age >= 18){
+            bpm_max = 194;
+        }
+        return bpm_max;
     }
 }
 

@@ -5,12 +5,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,9 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.material.tabs.TabLayoutMediator;
-
-import org.w3c.dom.Text;
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 
 public class BPMFragment extends Fragment {
@@ -28,6 +23,7 @@ public class BPMFragment extends Fragment {
     private Data data;
     private TextView textValue;
     private TextView desc;
+    private CircularProgressBar BPMbar;
 
     private DatabaseHelper myDb;
 
@@ -44,6 +40,7 @@ public class BPMFragment extends Fragment {
 
         textValue = (TextView)rootView.findViewById(R.id.textView_BPM_Value);
         desc = (TextView)rootView.findViewById(R.id.textView_desc);
+        BPMbar = (CircularProgressBar)rootView.findViewById(R.id.progressBar_BPM);
 
         myDb = new DatabaseHelper(getActivity());
 
@@ -64,6 +61,7 @@ public class BPMFragment extends Fragment {
                 String current_BPM = data.getBPM().getValue();
                 current_BPM = current_BPM.replace("\r", "");
                 textValue.setText(current_BPM);
+                BPMbar.setProgress(Integer.parseInt(current_BPM));
 
                 Cursor res = myDb.getIDAndNameofSelectedUser();
                 String ID = "null";
@@ -71,43 +69,54 @@ public class BPMFragment extends Fragment {
                     ID = res.getString(0);
                 }
 
-                res = myDb.getSingleDataByID(Integer.parseInt(ID));
+                res = myDb.getUserByID(Integer.parseInt(ID));
                 int age = -1;
                 while(res.moveToNext()) {
                     age = Integer.parseInt(res.getString(3));
                 }
 
+                int BPMmax = BPM_check.BPMlimit(age);
+                BPMbar.setProgressMax(BPMmax);
+
                 String range = BPM_check.BPM_check(Integer.parseInt(current_BPM), age);
                 if(range == "Rest"){
                     textValue.setTextColor(Color.rgb(170, 255, 156));
+                    BPMbar.setProgressBarColor(Color.rgb(170, 255, 156));
                     desc.setText(range);
                 }
                 else if(range == "Low Intensity"){
                     textValue.setTextColor(Color.rgb(0, 202, 209));
+                    BPMbar.setProgressBarColor(Color.rgb(0, 202, 209));
                     desc.setText(range);
                 }
                 else if(range == "Moderate"){
                     textValue.setTextColor(Color.rgb(56, 196, 0));
+                    BPMbar.setProgressBarColor(Color.rgb(56, 196, 0));
                     desc.setText(range);
                 }
                 else if(range == "Aerobic"){
                     textValue.setTextColor(Color.rgb(255, 208, 0));
+                    BPMbar.setProgressBarColor(Color.rgb(255, 208, 0));
                     desc.setText(range);
                 }
                 else if(range == "Vigorous"){
                     textValue.setTextColor(Color.rgb(255, 115, 0));
+                    BPMbar.setProgressBarColor(Color.rgb(255, 115, 0));
                     desc.setText(range);
                 }
                 else if(range == "Max Effort"){
                     textValue.setTextColor(Color.rgb(255, 96, 71));
+                    BPMbar.setProgressBarColor(Color.rgb(255, 96, 71));
                     desc.setText(range);
                 }
                 else if(range == "Over Limit"){
                     textValue.setTextColor(Color.rgb(189, 26, 0));
+                    BPMbar.setProgressBarColor(Color.rgb(189, 26, 0));
                     desc.setText(range);
                 }
                 else{
                     textValue.setTextColor(Color.BLACK);
+                    BPMbar.setProgressBarColor(Color.BLACK);
                     desc.setText("");
                 }
             }

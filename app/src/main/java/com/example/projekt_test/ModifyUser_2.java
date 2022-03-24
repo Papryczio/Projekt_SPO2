@@ -11,8 +11,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 public class ModifyUser_2 extends AppCompatActivity {
 
     private Button confirmButton;
@@ -45,7 +43,7 @@ public class ModifyUser_2 extends AppCompatActivity {
         double weight = -1;
 
         myDb = new DatabaseHelper(this);
-        Cursor res = myDb.getSingleDataByID(selectedItem);
+        Cursor res = myDb.getUserByID(selectedItem);
         while (res.moveToNext()) {
             name = res.getString(1);
             sex = res.getString(2);
@@ -123,7 +121,7 @@ public class ModifyUser_2 extends AppCompatActivity {
                 }
 
                 if(valid == true){
-                    myDb.updateData(String.valueOf(selectedItem), new_name, new_sex, new_age, new_height, new_weight, 0);
+                    myDb.updateUser(String.valueOf(selectedItem), new_name, new_sex, new_age, new_height, new_weight, 0);
                     Toast.makeText(getApplicationContext(),"User modified", Toast.LENGTH_LONG);
                     finish();
                 } else {

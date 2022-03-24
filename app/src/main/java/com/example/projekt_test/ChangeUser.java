@@ -57,7 +57,7 @@ public class ChangeUser extends AppCompatActivity {
     }
 
     private void populateList(){
-        Cursor res = myDb.getAllData();
+        Cursor res = myDb.getAllUsers();
         ArrayList<StringBuffer> user_array = new ArrayList<>();
         while(res.moveToNext()){
             StringBuffer buffer = new StringBuffer();

@@ -71,7 +71,7 @@ public class SettingsFragment extends Fragment {
         modButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor res = myDb.getAllData();
+                Cursor res = myDb.getAllUsers();
                 if(res.getCount() == 0){
                     Toast.makeText(getContext(), "There are no users added yet", Toast.LENGTH_LONG).show();
                 }else{
@@ -84,7 +84,7 @@ public class SettingsFragment extends Fragment {
         changeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor res = myDb.getAllData();
+                Cursor res = myDb.getAllUsers();
                 if(res.getCount() == 0){
                     Toast.makeText(getContext(), "There are no users added yet", Toast.LENGTH_LONG).show();
                 }else{

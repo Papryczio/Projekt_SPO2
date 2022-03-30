@@ -110,6 +110,10 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
                 intent.putExtra(BUFFER_SIZE, mBufferSize);
                 startActivity(intent);
+                Intent intent2 = new Intent(getApplicationContext(), BT_Service.class);
+                intent2.putExtra(DEVICE_EXTRA, device);
+                intent2.putExtra(DEVICE_UUID, mDeviceUUID.toString());
+                startService(intent2);
             }
         });
 

@@ -1,5 +1,9 @@
 package com.example.projekt_test;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -18,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +40,6 @@ public class BTLOGFragment extends Fragment {
     //endregion
 
     MonitoringScreen monitoringScreen = new MonitoringScreen();
-    private Data data;
 
     public BTLOGFragment() {
         // Required empty public constructor
@@ -45,61 +49,47 @@ public class BTLOGFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_b_t_l_o_g, container, false);
-        data = new Data();
-            chkScroll = (CheckBox) rootView.findViewById(R.id.chkScroll);
 
-        //!kontrola checkBoxów
 
         //region GUI
-            mTxtReceive = (TextView)rootView.findViewById(R.id.txtReceive);
-            mBtnClearInput = (Button) rootView.findViewById(R.id.btnClearInput);
-            BPM_textView = (TextView) rootView.findViewById(R.id.BPM_display);
-            SPO2_textView = (TextView) rootView.findViewById(R.id.SPO2_display);
-            scrollView = (ScrollView) rootView.findViewById(R.id.viewScroll);
+        chkScroll = (CheckBox) rootView.findViewById(R.id.chkScroll);
+        mTxtReceive = (TextView)rootView.findViewById(R.id.txtReceive);
+        mBtnClearInput = (Button) rootView.findViewById(R.id.btnClearInput);
+        BPM_textView = (TextView) rootView.findViewById(R.id.BPM_display);
+        SPO2_textView = (TextView) rootView.findViewById(R.id.SPO2_display);
+        scrollView = (ScrollView) rootView.findViewById(R.id.viewScroll);
         //endregion
 
-            mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
-            mBtnClearInput.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View arg0) {
+        mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
+        mBtnClearInput.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
                     mTxtReceive.setText("");
                 }
-            });
+        });
         return rootView;
     }
 
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        data = new ViewModelProvider(requireActivity()).get(Data.class);
-
-        data.getBPM().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Log.d("BTLOG_fragment", "BPM DATA UPDATE");
-                BPM_textView.setText(data.getBPM().getValue());
+    private BroadcastReceiver mReciever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String BPM = intent.getStringExtra("BPM");
+            if(BPM != null) {
+                BPM_textView.setText(BPM);
             }
-        });
-
-        data.getSPO2().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Log.d("BTLOG_fragment", "SPO2 DATA UPDATE");
-                SPO2_textView.setText(data.getSPO2().getValue());
+            String SPO2 = intent.getStringExtra("SPO2");
+            if(SPO2 != null) {
+                SPO2_textView.setText(SPO2);
             }
-        });
-
-        data.getBTLOG().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Log.d("BTLOG_fragment", "BTLOG DATA UPDATE");
+            String LOG = intent.getStringExtra("LOG");
+            if(LOG != null) {
                 Date now = new Date();
                 long timestamp = now.getTime();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 String dateStr = sdf.format(timestamp);
                 mTxtReceive.append(dateStr + "\n");
-                mTxtReceive.append(data.getBTLOG().getValue());
-                if(chkScroll.isChecked()) {
+                mTxtReceive.append(LOG);
+                if (chkScroll.isChecked()) {
                     scrollView.post(new Runnable() {
                         @Override
                         public void run() {
@@ -108,7 +98,17 @@ public class BTLOGFragment extends Fragment {
                     });
                 }
             }
-        });
+        }
+    };
+
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mReciever, new IntentFilter(BT_Service.INTENT_SERVICE_MESSAGE));
+        Intent liveData = new Intent(this.getActivity(), LiveDataService.class);
+        getActivity().startService(liveData);
+
+
     }
 
 }

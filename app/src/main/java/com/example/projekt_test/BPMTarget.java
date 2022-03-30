@@ -1,7 +1,5 @@
 package com.example.projekt_test;
 
-import android.widget.ProgressBar;
-
 public class BPMTarget {
 
     public BPMTarget(){

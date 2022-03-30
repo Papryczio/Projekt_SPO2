@@ -24,6 +24,10 @@
             android:enabled="true"
             android:exported="true"></service>
 
+        <service
+            android:name=".LiveDataService"
+            android:exported="false"></service>
+
         <activity
             android:name=".ModifyUser_2"
             android:exported="false"

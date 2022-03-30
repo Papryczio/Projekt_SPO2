@@ -2,6 +2,7 @@ package com.example.projekt_test;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.IntentService;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -18,9 +19,11 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,21 +36,15 @@ public class BT_Service extends Service {
     private int BPM = 0;
     private int SPO2 = 0;
     private String[] temp = new String[4];
-
-    private Data data;
     private DatabaseHelper db;
-
     private int User_ID = -1;
     private int Date_ID = -1;
-
     private BluetoothDevice mDevice;
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
     private static final String TAG = "BT_Service";
-
     private boolean mIsBluetoothConnected = false;
     private ReadInput mReadThread = null;
-
 
     public BT_Service() {
     }
@@ -65,15 +62,12 @@ public class BT_Service extends Service {
     @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-
         // create
         Bundle b = intent.getExtras();
         mDevice = b.getParcelable(MainActivity.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         Log.d(TAG, "Ready");
 
-        //data = new ViewModelProvider((ViewModelStoreOwner) intent).get(Data.class);
         db = new DatabaseHelper(this);
 
         Cursor res = db.getIDAndNameofSelectedUser();
@@ -93,8 +87,6 @@ public class BT_Service extends Service {
 
 
         // connect
-
-
         if (mBTSocket == null || !mIsBluetoothConnected) {
             new BT_Service.ConnectBT().execute();
         }
@@ -105,7 +97,7 @@ public class BT_Service extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Service destroyed");
     }
 
 
@@ -199,7 +191,6 @@ public class BT_Service extends Service {
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
-
             t.start();
         }
 
@@ -249,9 +240,7 @@ public class BT_Service extends Service {
                             //wpisywanie danych do bazy
                             if (temp[3].trim().equals("1")) {
                                 try {
-                                    //data.getBPM().postValue(temp[2]);
                                     BPM = Integer.parseInt(temp[2].trim());
-                                    Log.d(TAG, "BPM_DISP: " + data.getBPM().getValue());
                                 } catch (Exception ex){
                                     Log.d(TAG, "BPM data invalid");
                                 }
@@ -259,9 +248,7 @@ public class BT_Service extends Service {
 
                             if (temp[1].trim().equals("1")) {
                                 try {
-                                    //data.getSPO2().postValue(temp[0]);
                                     SPO2 = Integer.parseInt(temp[0].trim());
-                                    Log.d(TAG, "SPO2_DISP" + data.getSPO2().getValue());
                                 } catch (Exception ex){
                                     Log.d(TAG, "SPO2 data invalid");
                                 }
@@ -274,6 +261,11 @@ public class BT_Service extends Service {
                             }
                         }
                         //data.getBTLOG().postValue(strInput);
+                        Intent liveData = new Intent(getApplicationContext(), LiveDataService.class);
+                        liveData.putExtra("BPM", String.valueOf(BPM));
+                        liveData.putExtra("SPO2", String.valueOf(SPO2));
+                        liveData.putExtra("LOG", strInput);
+                        getApplicationContext().startService(liveData);
                     }
                     Thread.sleep(500);
                 }
@@ -292,6 +284,7 @@ public class BT_Service extends Service {
         }
 
     }
+
 }
 
 

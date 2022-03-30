@@ -9,6 +9,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -36,6 +38,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_23 = "BPM";
     public static final String COL_24 = "SPO2";
 
+    private Data data;
+
     public DatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, 1);
         SQLiteDatabase db = this.getWritableDatabase();
@@ -43,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+
         db.execSQL("create table " + TABLE_NAME + " ("
                 +ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
                 +COL_1+" TEXT,"

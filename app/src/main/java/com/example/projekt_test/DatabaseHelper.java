@@ -38,8 +38,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_23 = "BPM";
     public static final String COL_24 = "SPO2";
 
-    private Data data;
-
     public DatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, 1);
         SQLiteDatabase db = this.getWritableDatabase();

@@ -47,6 +47,7 @@ public class BPMFragment extends Fragment {
 
         BPM_check = new BPMTarget();
 
+
         return rootView;
 
     }
@@ -117,7 +118,7 @@ public class BPMFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mReciever, new IntentFilter(BT_Service.INTENT_SERVICE_MESSAGE));
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(mReciever, new IntentFilter(LiveDataService.INTENT_SERVICE_MESSAGE));
         Intent liveData = new Intent(this.getActivity(), LiveDataService.class);
         getActivity().startService(liveData);
 

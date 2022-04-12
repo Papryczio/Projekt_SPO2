@@ -44,7 +44,6 @@ public class MonitoringScreen extends FragmentActivity {
     private int SPO2 = 0;
     private String[] temp = new String[4];
 
-    private Data data;
     private DatabaseHelper db;
 
     private int User_ID = -1;
@@ -91,7 +90,6 @@ public class MonitoringScreen extends FragmentActivity {
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         Log.d(TAG, "Ready");
 
-        data = new ViewModelProvider(this).get(Data.class);
         db = new DatabaseHelper(this);
 
         Cursor res = db.getIDAndNameofSelectedUser();

@@ -6,11 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -48,12 +45,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("create table " + TABLE_NAME + " ("
                 +ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
-                +COL_1+" TEXT,"
-                +COL_2+" TEXT,"
-                +COL_3+" INT,"
+                +COL_1+" TEXT NOT NULL,"
+                +COL_2+" TEXT NOT NULL,"
+                +COL_3+" INT NOT NULL,"
                 +COL_4+" INT,"
                 +COL_5+" DOUBLE,"
-                +COL_6+" INT)"
+                +COL_6+" INT NOT NULL)"
         );
 
         db.execSQL("create table " + TABLE_NAME_1 + " ("
@@ -167,7 +164,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAllData_user_date(String ID_Date){
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("SELECT * FROM " + TABLE_NAME_2 + " WHERE " + COL_21 + " = " + ID_Date, null);
+        Cursor res = db.rawQuery("SELECT * FROM " + TABLE_NAME_2 + " WHERE " + COL_21 + " = ?", new String[] {ID_Date});
         return res;
     }
 
@@ -209,11 +206,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean updateDate(String id, String date, String User_ID){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_11, User_ID);
-        contentValues.put(COL_12, date);
-        long result = db.update(TABLE_NAME_1, contentValues, "ID = ?", new String[] {id});
+        long result = -1;
+        if(User_ID != "-1") {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(COL_11, User_ID);
+            contentValues.put(COL_12, date);
+            result = db.update(TABLE_NAME_1, contentValues, "ID = ?", new String[]{id});
+        }
+        else {
+            result = -1;
+        }
         if(result == -1) {
             Log.d(TAG, "Update date failed");
             return false;
@@ -300,5 +303,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Log.d(TAG, "Delete data called");
         return db.delete(TABLE_NAME_2, "ID = ?", new String[] {id});
+    }
+
+    public void deleteDatabyUser(String user_ID){
+        int data_count = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Log.d(TAG, "Delete data by User called");
+        Cursor res = db.rawQuery("SELECT " + ID + " FROM " + TABLE_NAME_1 + " WHERE " + COL_11 + " = ?", new String[] {user_ID});
+        while(res.moveToNext()){
+            String data_ID = res.getString(0);
+            db.delete(TABLE_NAME_2, COL_21 + " = ?", new String[] {data_ID});
+            data_count ++;
+        }
+        Log.d(TAG, data_count + " records deleted from database");
+        db.delete(TABLE_NAME_1, COL_11 + "= ?", new String[] {user_ID});
+        Log.d(TAG, "Date at user_ID" + user_ID + "deleted");
+    }
+
+    public void dropUsers(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+    }
+
+    public void dropDates(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_1);
+    }
+
+    public void dropData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_2);
     }
 }

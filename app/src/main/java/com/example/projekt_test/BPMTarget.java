@@ -300,6 +300,23 @@ public class BPMTarget {
                 range = "Rest";
             }
         }
+        else if (age >= 7) {
+            if (BPM > 200) {
+                range = "Over Limit";
+            } else if (BPM > 164) {
+                range = "Max Effort";
+            } else if (BPM > 145) {
+                range = "Vigorous";
+            } else if (BPM > 135) {
+                range = "Aerobic";
+            } else if (BPM > 116) {
+                range = "Moderate";
+            } else if (BPM > 97) {
+                range = "Low Intensity";
+            } else{
+                range = "Rest";
+            }
+        }
         else {
             range = "UNKNOWN";
         }
@@ -346,6 +363,9 @@ public class BPMTarget {
         }
         else if (age >= 18){
             bpm_max = 194;
+        }
+        else if (age > 7){
+            bpm_max = 200;
         }
         return bpm_max;
     }

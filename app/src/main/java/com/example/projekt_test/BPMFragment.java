@@ -12,23 +12,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 
 public class BPMFragment extends Fragment {
 
+    private static final String TAG = "BPMFragment";
+
     private TextView textValue;
     private TextView desc;
+    private TextView AVGbpm;
     private CircularProgressBar BPMbar;
 
     private DatabaseHelper myDb;
 
     private BPMTarget BPM_check;
+
+    private int AVGcounter = 0;
 
     public BPMFragment() {
         // Required empty public constructor
@@ -42,11 +45,11 @@ public class BPMFragment extends Fragment {
         textValue = (TextView)rootView.findViewById(R.id.textView_BPM_Value);
         desc = (TextView)rootView.findViewById(R.id.textView_desc);
         BPMbar = (CircularProgressBar)rootView.findViewById(R.id.progressBar_BPM);
+        AVGbpm = (TextView)rootView.findViewById(R.id.textView_dailyAVG);
 
         myDb = new DatabaseHelper(getActivity());
 
         BPM_check = new BPMTarget();
-
 
         return rootView;
 
@@ -56,7 +59,7 @@ public class BPMFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             String current_BPM = intent.getStringExtra("BPM");
-            Log.d("BPM_fragment", "DATA UPDATE");
+            Log.d(TAG, "DATA UPDATE");
             if(current_BPM != null) {
                 textValue.setText(current_BPM);
                 BPMbar.setProgress(Integer.parseInt(current_BPM));
@@ -76,6 +79,34 @@ public class BPMFragment extends Fragment {
                 int BPMmax = BPM_check.BPMlimit(age);
                 BPMbar.setProgressMax(BPMmax);
 
+                if(++AVGcounter == 5){
+                    Log.d(TAG, "counter tik tok");
+                    AVGcounter = 0;
+                    int AVGBPM = 0;
+                    int dataCounter = 0;
+                    int AVGBPMsum = 0;
+                    String maxID = myDb.maxDateID();
+                    Cursor res2 = myDb.getAllData_user_date(maxID);
+                    while(res2.moveToNext()){
+                        try {
+                            AVGBPMsum += Integer.parseInt(res2.getString(3));
+                            Log.d(TAG, "Got data: " + res2.getString(3));
+                            dataCounter++;
+                        }
+                        catch(Exception ex){
+                            Log.d(TAG, "Data exception");
+                            ex.printStackTrace();
+                        }
+                    }
+                    try {
+                        AVGBPM = AVGBPMsum/dataCounter;
+                        AVGbpm.setText(String.valueOf(AVGBPM));
+                    }
+                    catch(Exception ex){
+                        Log.d(TAG, "none data to average");
+                        ex.printStackTrace();
+                    }
+                }
                 String range = BPM_check.BPM_check(Integer.parseInt(current_BPM), age);
                 if (range == "Rest") {
                     textValue.setTextColor(Color.rgb(170, 255, 156));

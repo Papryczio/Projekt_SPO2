@@ -1,29 +1,19 @@
 package com.example.projekt_test;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.IntentService;
-import android.app.ProgressDialog;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -67,6 +67,7 @@ public class ModifyUser extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 int check = myDb.deleteUser(String.valueOf(selectedItem));
+                myDb.deleteDatabyUser(String.valueOf(selectedItem));
                 Log.d("MODUSER: delete", "Check of item delete: " + check);
                 populateList();
             }

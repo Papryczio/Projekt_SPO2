@@ -15,7 +15,17 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
+
+import java.sql.Array;
+import java.util.ArrayList;
 
 
 public class BPMFragment extends Fragment {
@@ -26,10 +36,15 @@ public class BPMFragment extends Fragment {
     private TextView desc;
     private TextView AVGbpm;
     private CircularProgressBar BPMbar;
-
     private DatabaseHelper myDb;
-
     private BPMTarget BPM_check;
+
+
+    private LineChart BPM_chart;
+    private ArrayList<Entry> dataVals;
+    private LineDataSet lineDataSet;
+    private ArrayList <ILineDataSet> dataSets;
+    private LineData data;
 
     private int AVGcounter = 0;
 
@@ -46,19 +61,52 @@ public class BPMFragment extends Fragment {
         desc = (TextView)rootView.findViewById(R.id.textView_desc);
         BPMbar = (CircularProgressBar)rootView.findViewById(R.id.progressBar_BPM);
         AVGbpm = (TextView)rootView.findViewById(R.id.textView_dailyAVG);
+        BPM_chart = (LineChart)rootView.findViewById(R.id.BPM_graph);
 
         myDb = new DatabaseHelper(getActivity());
 
         BPM_check = new BPMTarget();
 
-        return rootView;
 
+        dataVals = new ArrayList<Entry>();
+        String maxID = myDb.maxDateID();
+        Cursor res2 = myDb.getAllData_user_date(maxID);
+        while (res2.moveToNext()) {
+            try {
+                dataVals.add(new Entry(Float.valueOf(res2.getString(0)), Float.valueOf(res2.getString(3))));
+            }
+            catch (Exception ex) {
+                Log.d(TAG, "GRAPH exception");
+                ex.printStackTrace();
+            }
+        }
+        lineDataSet = new LineDataSet(dataVals, "BPM");
+        lineDataSet.setDrawCircles(false);
+        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.setDrawFilled(true);
+
+        Description description = new Description();
+        description.setText("BPM");
+        BPM_chart.setDescription(description);
+
+        dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
+
+        data = new LineData(dataSets);
+        BPM_chart.setData(data);
+        BPM_chart.invalidate();
+
+
+
+
+        return rootView;
     }
 
     private BroadcastReceiver mReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String current_BPM = intent.getStringExtra("BPM");
+
             Log.d(TAG, "DATA UPDATE");
             if(current_BPM != null) {
                 textValue.setText(current_BPM);
@@ -107,6 +155,22 @@ public class BPMFragment extends Fragment {
                         ex.printStackTrace();
                     }
                 }
+
+
+                String max_date_ID = myDb.maxDateID();
+                String max_data_ID = myDb.maxDataIDatDate(max_date_ID);
+                Cursor res3 = myDb.getDataatID(max_data_ID);
+                while (res3.moveToNext()) {
+                    data.addEntry(new Entry(Float.valueOf(res3.getString(0)), Float.valueOf(res3.getString(3))),0);
+                }
+                BPM_chart.notifyDataSetChanged();
+                BPM_chart.moveViewToX(data.getEntryCount());
+
+
+
+
+
+
                 String range = BPM_check.BPM_check(Integer.parseInt(current_BPM), age);
                 if (range == "Rest") {
                     textValue.setTextColor(Color.rgb(170, 255, 156));

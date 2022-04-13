@@ -205,8 +205,12 @@ public class BT_Service extends Service {
 
                         temp = strInput.split("\n");
                         if(!(temp[0].trim().equals("0")) && !(temp[0].trim().equals("1"))) {
-                            Log.d(TAG, "TEMP: SPO2 = " + temp[0] + ", SPO2Valid = " + temp[1] + ", BPM = " + temp[2] + ", BPMValid = " + Integer.parseInt(temp[3].trim()));
-
+                            try {
+                                Log.d(TAG, "TEMP: SPO2 = " + temp[0] + ", SPO2Valid = " + temp[1] + ", BPM = " + temp[2] + ", BPMValid = " + Integer.parseInt(temp[3].trim()));
+                            }
+                            catch(Exception ex){
+                                ex.printStackTrace();
+                            }
                             // odczytanie czy ID użytkownika się nie zmieniło
                             Cursor res = db.getIDAndNameofSelectedUser();
                             int ID = -1;
@@ -244,13 +248,17 @@ public class BT_Service extends Service {
                                 }
                             }
                             try{
-                                LocalTime localTime = LocalTime.now();
-                                db.insertData(String.valueOf(Date_ID), localTime.toString(), String.valueOf(BPM), String.valueOf(SPO2));
+                                if(SPO2 > 60) {
+                                    LocalTime localTime = LocalTime.now();
+                                    db.insertData(String.valueOf(Date_ID), localTime.toString(), String.valueOf(BPM), String.valueOf(SPO2));
+                                }
+                                else{
+                                    Log.d(TAG,"SPO2 below min value");
+                                }
                             } catch (Exception ex){
                                 Log.d(TAG, "Data insertion failed");
                             }
                         }
-                        //data.getBTLOG().postValue(strInput);
                         Intent liveData = new Intent(getApplicationContext(), LiveDataService.class);
                         liveData.putExtra("BPM", String.valueOf(BPM));
                         liveData.putExtra("SPO2", String.valueOf(SPO2));

@@ -168,6 +168,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public Cursor getDataatID(String ID_Data){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("SELECT * FROM " + TABLE_NAME_2 + " WHERE " + ID + " = ?", new String[] {ID_Data});
+        return res;
+    }
+
     // Get all columns of an user at given ID
     public Cursor getUserByID(int id){
         SQLiteDatabase db = this.getWritableDatabase();
@@ -280,6 +286,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String maxID = "";
         Cursor res = db.rawQuery("SELECT MAX(" + ID + ") FROM " + TABLE_NAME_1, null);
         while(res.moveToNext()){
+            maxID = res.getString(0);
+        }
+        return maxID;
+    }
+
+    public String maxDataIDatDate(String date_ID){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String maxID = "";
+        Cursor res = db.rawQuery("SELECT MAX(" + ID + ") FROM " + TABLE_NAME_2, null);
+        while (res.moveToNext()) {
             maxID = res.getString(0);
         }
         return maxID;

@@ -44,7 +44,7 @@ public class SettingsFragment extends Fragment {
         currentUserName = (TextView)rootView.findViewById(R.id.textView_userName);
 
         try {
-            Cursor res = myDb.getIDAndNameofSelectedUser();
+            Cursor res = myDb.getIDAndNameOfSelectedUser();
             String ID = "null";
             String name = "no user selected";
             while(res.moveToNext()) {
@@ -99,7 +99,7 @@ public class SettingsFragment extends Fragment {
 
     public void onResume() {
         try {
-            Cursor res = myDb.getIDAndNameofSelectedUser();
+            Cursor res = myDb.getIDAndNameOfSelectedUser();
             String ID = "null";
             String name = "no user selected";
             while(res.moveToNext()) {

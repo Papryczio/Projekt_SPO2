@@ -92,7 +92,7 @@ public class MonitoringScreen extends FragmentActivity {
 
         db = new DatabaseHelper(this);
 
-        Cursor res = db.getIDAndNameofSelectedUser();
+        Cursor res = db.getIDAndNameOfSelectedUser();
         while(res.moveToNext()){
             User_ID = Integer.parseInt(res.getString(0));
         }

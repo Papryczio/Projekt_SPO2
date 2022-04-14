@@ -183,11 +183,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Get ID and Name of currently selected user
-    public Cursor getIDAndNameofSelectedUser(){
+    public Cursor getIDAndNameOfSelectedUser(){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("select ID, name from " + TABLE_NAME + " where " + COL_6 + " = " + String.valueOf(1), null);
         Log.d(TAG, "Get ID and name of selected user called");
         return res;
+    }
+
+    public String getNewestDateForSelectedUser(String USER_ID){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("select ID from " + TABLE_NAME_1 + " where " + COL_11 + " = ? ORDER BY " + COL_12 + " ASC" , new String[] {USER_ID});
+        String ret = "err";
+        while(res.moveToNext()) {
+             ret = res.getString(0);
+        }
+        return ret;
     }
 
 

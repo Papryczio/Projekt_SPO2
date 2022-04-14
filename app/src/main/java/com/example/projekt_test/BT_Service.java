@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -60,7 +59,7 @@ public class BT_Service extends Service {
 
         db = new DatabaseHelper(this);
 
-        Cursor res = db.getIDAndNameofSelectedUser();
+        Cursor res = db.getIDAndNameOfSelectedUser();
         while (res.moveToNext()) {
             User_ID = Integer.parseInt(res.getString(0));
         }
@@ -89,8 +88,6 @@ public class BT_Service extends Service {
     public void onDestroy() {
         Log.d(TAG, "Service destroyed");
     }
-
-
 
 
     private class ConnectBT extends AsyncTask<Void, Void, Void> {
@@ -177,7 +174,7 @@ public class BT_Service extends Service {
     private class ReadInput implements Runnable {
 
         private boolean bStop = false;
-        private Thread t;
+        private final Thread t;
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
@@ -204,29 +201,27 @@ public class BT_Service extends Service {
                         final String strInput = new String(buffer, 0, i);
 
                         temp = strInput.split("\n");
-                        if(!(temp[0].trim().equals("0")) && !(temp[0].trim().equals("1"))) {
+                        if (!(temp[0].trim().equals("0")) && !(temp[0].trim().equals("1"))) {
                             try {
                                 Log.d(TAG, "TEMP: SPO2 = " + temp[0] + ", SPO2Valid = " + temp[1] + ", BPM = " + temp[2] + ", BPMValid = " + Integer.parseInt(temp[3].trim()));
-                            }
-                            catch(Exception ex){
+                            } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
                             // odczytanie czy ID użytkownika się nie zmieniło
-                            Cursor res = db.getIDAndNameofSelectedUser();
+                            Cursor res = db.getIDAndNameOfSelectedUser();
                             int ID = -1;
                             while (res.moveToNext()) {
                                 ID = Integer.parseInt(res.getString(0));
                             }
-                            if(ID != User_ID){
+                            if (ID != User_ID) {
                                 User_ID = ID;
                                 LocalDate localDate = LocalDate.now();
                                 res = db.checkExistenceOfUserAndDate(String.valueOf(User_ID), localDate.toString());
-                                if(res != null){
-                                    while (res.moveToNext()){
+                                if (res != null) {
+                                    while (res.moveToNext()) {
                                         Date_ID = Integer.parseInt(res.getString(0));
                                     }
-                                }
-                                else{
+                                } else {
                                     db.insertDate(localDate.toString(), String.valueOf(User_ID));
                                     Date_ID = Integer.parseInt(db.maxDateID());
                                 }
@@ -235,7 +230,7 @@ public class BT_Service extends Service {
                             if (temp[3].trim().equals("1")) {
                                 try {
                                     BPM = Integer.parseInt(temp[2].trim());
-                                } catch (Exception ex){
+                                } catch (Exception ex) {
                                     Log.d(TAG, "BPM data invalid");
                                 }
                             }
@@ -243,19 +238,18 @@ public class BT_Service extends Service {
                             if (temp[1].trim().equals("1")) {
                                 try {
                                     SPO2 = Integer.parseInt(temp[0].trim());
-                                } catch (Exception ex){
+                                } catch (Exception ex) {
                                     Log.d(TAG, "SPO2 data invalid");
                                 }
                             }
-                            try{
-                                if(SPO2 > 60) {
+                            try {
+                                if (SPO2 > 60) {
                                     LocalTime localTime = LocalTime.now();
                                     db.insertData(String.valueOf(Date_ID), localTime.toString(), String.valueOf(BPM), String.valueOf(SPO2));
+                                } else {
+                                    Log.d(TAG, "SPO2 below min value");
                                 }
-                                else{
-                                    Log.d(TAG,"SPO2 below min value");
-                                }
-                            } catch (Exception ex){
+                            } catch (Exception ex) {
                                 Log.d(TAG, "Data insertion failed");
                             }
                         }

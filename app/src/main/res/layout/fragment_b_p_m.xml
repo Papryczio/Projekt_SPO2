@@ -85,23 +85,36 @@
                 app:layout_constraintStart_toEndOf="@+id/textView3"
                 app:layout_constraintTop_toBottomOf="@+id/progressBar_BPM" />
 
+            <Button
+                android:id="@+id/button_calendar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Check another date"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/BPM_pie_calendar" />
+
             <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/BPM_graph"
+                android:id="@+id/BPM_graph_calendar"
                 android:layout_width="0dp"
                 android:layout_height="300dp"
                 android:layout_marginTop="32dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView_dailyAVG" />
+                app:layout_constraintTop_toBottomOf="@+id/textView_dailyAVG" >
+
+            </com.github.mikephil.charting.charts.LineChart>
 
             <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/BPM_pie"
+                android:id="@+id/BPM_pie_calendar"
                 android:layout_width="0dp"
                 android:layout_height="300dp"
                 android:layout_marginTop="32dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/BPM_graph" />
+                app:layout_constraintTop_toBottomOf="@+id/BPM_graph_calendar">
+
+            </com.github.mikephil.charting.charts.PieChart>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

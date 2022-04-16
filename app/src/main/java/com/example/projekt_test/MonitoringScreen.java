@@ -1,28 +1,20 @@
 package com.example.projekt_test;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.UUID;
 
 public class MonitoringScreen extends FragmentActivity {
@@ -34,15 +26,15 @@ public class MonitoringScreen extends FragmentActivity {
     private BluetoothSocket mBTSocket;
     //private ReadInput mReadThread = null;
     private static final String BT_TAG = "BT_Monitoring";
-    private boolean mIsUserInitiatedDisconnect = false;
-    private boolean mIsBluetoothConnected = false;
+    private final boolean mIsUserInitiatedDisconnect = false;
+    private final boolean mIsBluetoothConnected = false;
     private BluetoothDevice mDevice;
     private ProgressDialog progressDialog;
     //endregion
 
-    private int BPM = 0;
-    private int SPO2 = 0;
-    private String[] temp = new String[4];
+    private final int BPM = 0;
+    private final int SPO2 = 0;
+    private final String[] temp = new String[4];
 
     private DatabaseHelper db;
 

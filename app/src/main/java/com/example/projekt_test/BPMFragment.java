@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -38,11 +39,12 @@ public class BPMFragment extends Fragment {
     //GUI elements
     private TextView textValue;
     private TextView desc;
-    private TextView AVGbpm;
-    private CircularProgressBar BPMbar;
+    private TextView BPM_avg;
+    private CircularProgressBar BPM_bar;
     private BPMTarget BPM_check;
     private LineChart BPM_chart;
     private PieChart BPM_pie;
+    private Button calendar;
 
     //database connected
     private DatabaseHelper myDb;
@@ -76,10 +78,18 @@ public class BPMFragment extends Fragment {
         //GUI elements
         textValue = (TextView) rootView.findViewById(R.id.textView_BPM_Value);
         desc = (TextView) rootView.findViewById(R.id.textView_desc);
-        BPMbar = (CircularProgressBar) rootView.findViewById(R.id.progressBar_BPM);
-        AVGbpm = (TextView) rootView.findViewById(R.id.textView_dailyAVG);
-        BPM_chart = (LineChart) rootView.findViewById(R.id.BPM_graph);
-        BPM_pie = (PieChart)rootView.findViewById(R.id.BPM_pie);
+        BPM_bar = (CircularProgressBar) rootView.findViewById(R.id.progressBar_BPM);
+        BPM_avg = (TextView) rootView.findViewById(R.id.textView_dailyAVG);
+        BPM_chart = (LineChart) rootView.findViewById(R.id.BPM_graph_calendar);
+        BPM_pie = (PieChart)rootView.findViewById(R.id.BPM_pie_calendar);
+        calendar = (Button) rootView.findViewById(R.id.button_calendar);
+        calendar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), Calendar.class);
+                startActivity(intent);
+            }
+        });
 
         //database connected
         myDb = new DatabaseHelper(getActivity());
@@ -117,7 +127,7 @@ public class BPMFragment extends Fragment {
             //if received data is not null proceed on calculations and GUI updates
             if (current_BPM != null) {
                 textValue.setText(current_BPM);
-                BPMbar.setProgress(Integer.parseInt(current_BPM));
+                BPM_bar.setProgress(Integer.parseInt(current_BPM));
 
                 //checking currently chosen user
                 Cursor res = myDb.getIDAndNameOfSelectedUser();
@@ -130,6 +140,8 @@ public class BPMFragment extends Fragment {
                         drawPie(newestID);
                     }
                 }
+                newestID = myDb.getNewestDateForSelectedUser(ID);
+
                 //getting age of selected user
                 res = myDb.getUserByID(Integer.parseInt(ID));
                 while (res.moveToNext()) {
@@ -137,8 +149,8 @@ public class BPMFragment extends Fragment {
                 }
 
                 //checking max BPM for the user and updating progressBar
-                int BPMmax = BPM_check.BPMlimit(age);
-                BPMbar.setProgressMax(BPMmax);
+                int BPM_max = BPM_check.BPMlimit(age);
+                BPM_bar.setProgressMax(BPM_max);
 
                 //calculating daily average of BPM every 5 new data entries
                 if (++AVGcounter == 5) {
@@ -159,7 +171,7 @@ public class BPMFragment extends Fragment {
                     }
                     try {
                         AVGBPM = AVGBPMsum / dataCounter;
-                        AVGbpm.setText(String.valueOf(AVGBPM));
+                        BPM_avg.setText(String.valueOf(AVGBPM));
                         Log.d(TAG, "Average BPM updated");
                     } catch (Exception ex) {
                         Log.d(TAG, "no data to average");
@@ -185,35 +197,35 @@ public class BPMFragment extends Fragment {
                 String range = BPM_check.BPM_check(Integer.parseInt(current_BPM), age);
                 if (range == "Rest") {
                     textValue.setTextColor(Color.rgb(170, 255, 156));
-                    BPMbar.setProgressBarColor(Color.rgb(170, 255, 156));
+                    BPM_bar.setProgressBarColor(Color.rgb(170, 255, 156));
                     desc.setText(range);
                 } else if (range == "Low Intensity") {
                     textValue.setTextColor(Color.rgb(0, 202, 209));
-                    BPMbar.setProgressBarColor(Color.rgb(0, 202, 209));
+                    BPM_bar.setProgressBarColor(Color.rgb(0, 202, 209));
                     desc.setText(range);
                 } else if (range == "Moderate") {
                     textValue.setTextColor(Color.rgb(56, 196, 0));
-                    BPMbar.setProgressBarColor(Color.rgb(56, 196, 0));
+                    BPM_bar.setProgressBarColor(Color.rgb(56, 196, 0));
                     desc.setText(range);
                 } else if (range == "Aerobic") {
                     textValue.setTextColor(Color.rgb(255, 208, 0));
-                    BPMbar.setProgressBarColor(Color.rgb(255, 208, 0));
+                    BPM_bar.setProgressBarColor(Color.rgb(255, 208, 0));
                     desc.setText(range);
                 } else if (range == "Vigorous") {
                     textValue.setTextColor(Color.rgb(255, 115, 0));
-                    BPMbar.setProgressBarColor(Color.rgb(255, 115, 0));
+                    BPM_bar.setProgressBarColor(Color.rgb(255, 115, 0));
                     desc.setText(range);
                 } else if (range == "Max Effort") {
                     textValue.setTextColor(Color.rgb(255, 96, 71));
-                    BPMbar.setProgressBarColor(Color.rgb(255, 96, 71));
+                    BPM_bar.setProgressBarColor(Color.rgb(255, 96, 71));
                     desc.setText(range);
                 } else if (range == "Over Limit") {
                     textValue.setTextColor(Color.rgb(189, 26, 0));
-                    BPMbar.setProgressBarColor(Color.rgb(189, 26, 0));
+                    BPM_bar.setProgressBarColor(Color.rgb(189, 26, 0));
                     desc.setText(range);
                 } else {
                     textValue.setTextColor(Color.BLACK);
-                    BPMbar.setProgressBarColor(Color.BLACK);
+                    BPM_bar.setProgressBarColor(Color.BLACK);
                     desc.setText("");
                 }
             }

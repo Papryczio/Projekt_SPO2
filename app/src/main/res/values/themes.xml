@@ -15,4 +15,10 @@
         <item name="android:textColorPrimary">@color/black</item>
         <item name="android:background">@color/white</item>
     </style>
+    <style name="Theme.Projekt_test.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.Projekt_test.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Projekt_test.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

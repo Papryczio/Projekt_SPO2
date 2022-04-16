@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -41,6 +42,7 @@ public class SPO2Fragment extends Fragment {
     private CircularProgressBar SPO2_bar;
     private LineChart SPO2_chart;
     private PieChart SPO2_pie;
+    private Button calendar;
 
     //database connected
     private DatabaseHelper myDb;
@@ -79,8 +81,15 @@ public class SPO2Fragment extends Fragment {
         SPO2_chart = (LineChart) rootView.findViewById(R.id.SPO2_graph);
         SPO2_pie = (PieChart) rootView.findViewById(R.id.SPO2_pie);
         SPO2_bar.setProgressMax(100);
+        calendar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), Calendar.class);
+                startActivity(intent);
+            }
+        });
 
-        //datadase connected
+        //database connected
         myDb = new DatabaseHelper(getActivity());
         Cursor res = myDb.getIDAndNameOfSelectedUser();
         while (res.moveToNext()) {
@@ -122,6 +131,7 @@ public class SPO2Fragment extends Fragment {
                         drawPie(newestID);
                     }
                 }
+                newestID = myDb.getNewestDateForSelectedUser(ID);
 
                 //calculating daily average of SPO2 every 5 new data entries
                 if (++counter_avg == 5) {

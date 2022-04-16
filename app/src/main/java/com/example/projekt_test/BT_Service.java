@@ -27,8 +27,16 @@ public class BT_Service extends Service {
     //values
     private int BPM = 0;
     private int SPO2 = 0;
-
+    private int BPM_avg[] = new int[10];
+    private int BPM_avg_val = -1;
+    private int SPO2_avg_val = -1;
+    private int SPO2_avg[] = new int[10];
     private String[] temp = new String[4];
+    private int BPM_counter = 0;
+    private int SPO2_counter = 0;
+    private boolean BPM_valid = false;
+    private boolean SPO2_valid = false;
+
 
     //database related
     private DatabaseHelper db;
@@ -58,18 +66,21 @@ public class BT_Service extends Service {
     @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // create
+        //getting extras from mainActivity
         Bundle b = intent.getExtras();
         mDevice = b.getParcelable(MainActivity.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         Log.d(TAG, "Ready");
 
+        //database
         db = new DatabaseHelper(this);
-
+        //checking current user
         Cursor res = db.getIDAndNameOfSelectedUser();
         while (res.moveToNext()) {
             User_ID = Integer.parseInt(res.getString(0));
         }
+
+        //looking for existence of user-date relation -> if exists select / else create
         LocalDate localDate = LocalDate.now();
         res = db.checkExistenceOfUserAndDate(String.valueOf(User_ID), localDate.toString());
         if (res != null) {
@@ -82,7 +93,7 @@ public class BT_Service extends Service {
         }
 
 
-        // connect
+        //open bluetooth connection
         if (mBTSocket == null || !mIsBluetoothConnected) {
             new BT_Service.ConnectBT().execute();
         }
@@ -108,7 +119,7 @@ public class BT_Service extends Service {
         @SuppressLint("MissingPermission")
         @Override
         protected Void doInBackground(Void... devices) {
-
+            //Trying to connect to device
             try {
                 if (mBTSocket == null || !mIsBluetoothConnected) {
                     mBTSocket = mDevice.createInsecureRfcommSocketToServiceRecord(mDeviceUUID);
@@ -116,7 +127,7 @@ public class BT_Service extends Service {
                     mBTSocket.connect();
                 }
             } catch (IOException e) {
-// Unable to connect to device
+            //Unable to connect to device
                 e.printStackTrace();
                 mConnectSuccessful = false;
             }
@@ -128,10 +139,10 @@ public class BT_Service extends Service {
             super.onPostExecute(result);
 
             if (!mConnectSuccessful) {
-                Toast.makeText(getApplicationContext(), "Could not connect to device. Is it a Serial device? Also check if the UUID is correct in the settings", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Connection attempt failed", Toast.LENGTH_LONG).show();
             } else {
                 mIsBluetoothConnected = true;
-                Toast.makeText(getApplicationContext(), "Bluetooth connected", Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "Bluetooth connected", Toast.LENGTH_LONG).show();
                 mReadThread = new ReadInput();
             }
 
@@ -212,7 +223,8 @@ public class BT_Service extends Service {
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
-                            // odczytanie czy ID użytkownika się nie zmieniło
+
+                            //checking if current user is valid
                             Cursor res = db.getIDAndNameOfSelectedUser();
                             int ID = -1;
                             while (res.moveToNext()) {
@@ -230,34 +242,80 @@ public class BT_Service extends Service {
                                     db.insertDate(localDate.toString(), String.valueOf(User_ID));
                                     Date_ID = Integer.parseInt(db.maxDateID());
                                 }
+                                BPM_valid = false;
+                                SPO2_valid = false;
+                                BPM_avg_val = -1;
+                                SPO2_avg_val = -1;
+                                BPM_counter = 0;
+                                SPO2_counter = 0;
                             }
-                            //wpisywanie danych do bazy
+
+                            //checking if date is valid
+                            LocalDate localDate = LocalDate.now();
+                            res = db.checkExistenceOfUserAndDate(String.valueOf(User_ID), localDate.toString());
+                            if (res == null) {
+                                db.insertDate(localDate.toString(), String.valueOf(User_ID));
+                                BPM_valid = false;
+                                SPO2_valid = false;
+                                BPM_avg_val = -1;
+                                SPO2_avg_val = -1;
+                                BPM_counter = 0;
+                                SPO2_counter = 0;
+                            }
+
+                            //getting BPM data and averaging 10 valid samples
                             if (temp[3].trim().equals("1")) {
                                 try {
                                     BPM = Integer.parseInt(temp[2].trim());
+                                    BPM_avg[BPM_counter] = BPM;
+                                    if(++BPM_counter == 10){
+                                        BPM_valid = true;
+                                        int BPM_avg_temp = 0;
+                                        for(int j = 0; j < 10; j++){
+                                            BPM_avg_temp += BPM_avg[j];
+                                        }
+                                        BPM_avg_val = BPM_avg_temp/10;
+                                        BPM_counter = 0;
+                                    }
                                 } catch (Exception ex) {
                                     Log.d(TAG, "BPM data invalid");
                                 }
                             }
-
+                            //getting SPO2 data and averaging 10 valid samples
                             if (temp[1].trim().equals("1")) {
                                 try {
                                     SPO2 = Integer.parseInt(temp[0].trim());
+                                    if(SPO2 > 60) {
+                                        SPO2_avg[SPO2_counter] = SPO2;
+                                        if (++SPO2_counter == 10) {
+                                            SPO2_valid = true;
+                                            int SPO2_avg_temp = 0;
+                                            for (int j = 0; j < 10; j++) {
+                                                SPO2_avg_temp += SPO2_avg[j];
+                                            }
+                                            SPO2_avg_val = SPO2_avg_temp / 10;
+                                            SPO2_counter = 0;
+                                        }
+                                    }
                                 } catch (Exception ex) {
                                     Log.d(TAG, "SPO2 data invalid");
                                 }
                             }
-                            try {
-                                if (SPO2 > 60) {
+
+                            //if both BPM and SPO2 averages are valid -> insert it into database
+                            if(BPM_valid && SPO2_valid){
+                                try {
                                     LocalTime localTime = LocalTime.now();
-                                    db.insertData(String.valueOf(Date_ID), localTime.toString(), String.valueOf(BPM), String.valueOf(SPO2));
-                                } else {
-                                    Log.d(TAG, "SPO2 below min value");
+                                    db.insertData(String.valueOf(Date_ID), localTime.toString(), String.valueOf(BPM_avg_val), String.valueOf(SPO2_avg_val));
                                 }
-                            } catch (Exception ex) {
-                                Log.d(TAG, "Data insertion failed");
+                                catch(Exception ex){
+                                    ex.printStackTrace();
+                                    Log.d(TAG, "Data insertion into database failed");
+                                }
                             }
                         }
+
+                        //starting service that sends live data to fragments
                         Intent liveData = new Intent(getApplicationContext(), LiveDataService.class);
                         liveData.putExtra("BPM", String.valueOf(BPM));
                         liveData.putExtra("SPO2", String.valueOf(SPO2));

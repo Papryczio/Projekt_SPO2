@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.projekt_test">
+    package="com.example.projekt_test" >
 
     <uses-feature android:name="android.hardware.bluetooth" />
 
@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
     <application
@@ -18,15 +17,18 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Projekt_test">
+        android:theme="@style/Theme.Projekt_test" >
+        <activity
+            android:name=".Calendar"
+            android:exported="false" />
+
         <service
             android:name=".BT_Service"
             android:enabled="true"
-            android:exported="true"></service>
-
+            android:exported="true" />
         <service
             android:name=".LiveDataService"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".ModifyUser_2"
@@ -46,7 +48,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

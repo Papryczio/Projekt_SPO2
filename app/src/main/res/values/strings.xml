@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Best health app</string>
+    <string name="app_name"></string>
 
     <string-array name="Add_user_sex_list">
         <item>Sex</item>

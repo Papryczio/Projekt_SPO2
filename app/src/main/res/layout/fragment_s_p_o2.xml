@@ -29,16 +29,16 @@
                 android:text="Check another date"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/SPO2_pie" />
+                app:layout_constraintTop_toBottomOf="@+id/SPO2_pie_calendar" />
 
             <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/SPO2_pie"
+                android:id="@+id/SPO2_pie_calendar"
                 android:layout_width="0dp"
                 android:layout_height="300dp"
                 android:layout_marginTop="32dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/SPO2_graph" />
+                app:layout_constraintTop_toBottomOf="@+id/SPO2_graph_calendar" />
 
             <com.mikhaellopez.circularprogressbar.CircularProgressBar
                 android:id="@+id/progressBar_SPO2"
@@ -109,7 +109,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/progressBar_SPO2" />
 
             <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/SPO2_graph"
+                android:id="@+id/SPO2_graph_calendar"
                 android:layout_width="0dp"
                 android:layout_height="300dp"
                 android:layout_marginTop="32dp"

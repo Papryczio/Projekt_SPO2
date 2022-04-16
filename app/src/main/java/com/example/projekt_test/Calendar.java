@@ -41,7 +41,7 @@ public class Calendar extends AppCompatActivity {
         calendarView = (CalendarView) findViewById(R.id.calendarView);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout_calendar);
         viewPager2 = (ViewPager2) findViewById(R.id.viewPager_calendar);
-        pagerAdapterCalendar = new PagerAdapterCalendar(this, tabLayout.getTabCount());
+        pagerAdapterCalendar = new PagerAdapterCalendar(this, tabLayout.getTabCount(), date_ID, ID);
         viewPager2.setAdapter(pagerAdapterCalendar);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -73,12 +73,18 @@ public class Calendar extends AppCompatActivity {
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
                 LocalDate localDate = LocalDate.of(i,i1+1,i2);
                 Log.d(TAG, "Chosen date is: " + localDate);
-                Cursor res = myDb.checkExistenceOfUserAndDate(String.valueOf(ID), localDate.toString());
+                Cursor res = myDb.getIDAndNameOfSelectedUser();
+                while (res.moveToNext()) {
+                    ID = res.getString(0);
+                }
+                res = myDb.checkExistenceOfUserAndDate(String.valueOf(ID), localDate.toString());
                 if (res != null) {
 
                     while (res.moveToNext()) {
                         date_ID = res.getString(0);
                     }
+                    pagerAdapterCalendar = new PagerAdapterCalendar(Calendar.this, tabLayout.getTabCount(), date_ID, ID);
+                    viewPager2.setAdapter(pagerAdapterCalendar);
                 } else {
                     Toast.makeText(getApplicationContext(),"No data available", Toast.LENGTH_LONG).show();
                 }

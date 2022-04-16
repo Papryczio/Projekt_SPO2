@@ -1,64 +1,144 @@
 package com.example.projekt_test;
 
+import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SPO2Fragment_calendar#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+
+
 public class SPO2Fragment_calendar extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    //Log.d TAG
+    private static final String TAG = "SPO2Fragment_calendar";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    //GUI
+    private LineChart SPO2_chart;
+    private PieChart SPO2_pie;
 
-    public SPO2Fragment_calendar() {
-        // Required empty public constructor
-    }
+    //database connected
+    private DatabaseHelper myDb;
+    private String date_ID = "";
+    private String user_ID = "";
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SPO2Fragment_calendar.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SPO2Fragment_calendar newInstance(String param1, String param2) {
-        SPO2Fragment_calendar fragment = new SPO2Fragment_calendar();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    //chart connected
+    private ArrayList<Entry> dataVals;
+    private LineDataSet lineDataSet;
+    private ArrayList<ILineDataSet> dataSets;
+    private LineData data;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    //pie connected
+    private ArrayList<PieEntry> pieEntries;
+    private PieData pieData;
+
+    public SPO2Fragment_calendar(String date_ID, String user_ID) {
+        this.date_ID = date_ID;
+        this.user_ID = user_ID;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_s_p_o2_calendar, container, false);
+        View rootView =  inflater.inflate(R.layout.fragment_s_p_o2_calendar, container, false);
+
+        //GUI
+        SPO2_chart = (LineChart) rootView.findViewById(R.id.SPO2_graph_calendar);
+        SPO2_pie = (PieChart) rootView.findViewById(R.id.SPO2_pie_calendar);
+
+        //database
+        myDb = new DatabaseHelper(getActivity());
+        if(!date_ID.equals("")) {
+            drawChart(date_ID);
+            drawPie(date_ID);
+        }
+
+        return rootView;
+    }
+
+    //redrawing chart using all data
+    private void drawChart(String newID) {
+        dataVals = new ArrayList<Entry>();
+        Cursor res2 = myDb.getAllData_user_date(newID);
+        while (res2.moveToNext()) {
+            try {
+                dataVals.add(new Entry(Float.valueOf(res2.getString(0)), Float.valueOf(res2.getString(4))));
+            } catch (Exception ex) {
+                Log.d(TAG, "GRAPH exception");
+                ex.printStackTrace();
+            }
+        }
+        lineDataSet = new LineDataSet(dataVals, "SPO2");
+        lineDataSet.setDrawCircles(false);
+        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.setDrawFilled(true);
+
+        Description description = new Description();
+        description.setText("SPO2");
+        SPO2_chart.setDescription(description);
+
+        dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
+
+        data = new LineData(dataSets);
+        SPO2_chart.setData(data);
+        SPO2_chart.invalidate();
+    }
+
+    private void drawPie(String newID){
+        pieEntries = new ArrayList<>();
+        SPO2_pie.setUsePercentValues(true);
+        SPO2_pie.setDrawEntryLabels(false);
+        SPO2_pie.setDrawRoundedSlices(true);
+        SPO2_pie.setHoleColor(Color.parseColor("#00000000"));
+        ArrayList<Integer> colors = new ArrayList<>();
+        colors.add(Color.parseColor("#00ff00"));
+        colors.add(Color.parseColor("#ffff00"));
+        colors.add(Color.parseColor("#ffad00"));
+        colors.add(Color.parseColor("#ff2300"));
+
+        Cursor res = myDb.getAllData_user_date(newID);
+        int greenRange = 0, yellowRange = 0, orangeRange = 0, redRange = 0;
+        while (res.moveToNext()) {
+            int SPO2 = Integer.parseInt(res.getString(4));
+            if (SPO2 > 96) {
+                greenRange++;
+            } else if (SPO2 <= 96 && SPO2 > 93) {
+                yellowRange++;
+            } else if (SPO2 <= 93 && SPO2 > 89) {
+                orangeRange++;
+            } else if (SPO2 <= 89) {
+                redRange++;
+            }
+        }
+        pieEntries.add(new PieEntry(greenRange, "Excellent"));
+        pieEntries.add(new PieEntry(yellowRange, "Good"));
+        pieEntries.add(new PieEntry(orangeRange, "Bad"));
+        pieEntries.add(new PieEntry(redRange, "Horrible"));
+        PieDataSet pieDataSet = new PieDataSet(pieEntries,"SPO2");
+        pieDataSet.setColors(colors);
+        pieData = new PieData(pieDataSet);
+        SPO2_pie.setData(pieData);
+        SPO2_pie.invalidate();
     }
 }

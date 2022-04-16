@@ -78,8 +78,9 @@ public class SPO2Fragment extends Fragment {
         textValue = (TextView) rootView.findViewById(R.id.textView_SPO2_Value);
         SPO2_avg = (TextView) rootView.findViewById(R.id.textView_AVGSPO2);
         SPO2_bar = (CircularProgressBar) rootView.findViewById(R.id.progressBar_SPO2);
-        SPO2_chart = (LineChart) rootView.findViewById(R.id.SPO2_graph);
-        SPO2_pie = (PieChart) rootView.findViewById(R.id.SPO2_pie);
+        SPO2_chart = (LineChart) rootView.findViewById(R.id.SPO2_graph_calendar);
+        SPO2_pie = (PieChart) rootView.findViewById(R.id.SPO2_pie_calendar);
+        calendar = (Button) rootView.findViewById(R.id.button_calendar_2);
         SPO2_bar.setProgressMax(100);
         calendar.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -18,10 +18,14 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
@@ -38,6 +42,7 @@ public class BPMFragment extends Fragment {
     private CircularProgressBar BPMbar;
     private BPMTarget BPM_check;
     private LineChart BPM_chart;
+    private PieChart BPM_pie;
 
     //database connected
     private DatabaseHelper myDb;
@@ -48,10 +53,16 @@ public class BPMFragment extends Fragment {
     private ArrayList<ILineDataSet> dataSets;
     private LineData data;
 
+    //pie connected
+    private ArrayList<PieEntry> pieEntries;
+    private PieData pieData;
+
     //other functions and variables
     private int AVGcounter = 0;
+    private int pieCounter = 0;
     private String ID = "";
     private String newestID = "";
+    private int age = -1;
 
     public BPMFragment() {
         // Required empty public constructor
@@ -68,6 +79,7 @@ public class BPMFragment extends Fragment {
         BPMbar = (CircularProgressBar) rootView.findViewById(R.id.progressBar_BPM);
         AVGbpm = (TextView) rootView.findViewById(R.id.textView_dailyAVG);
         BPM_chart = (LineChart) rootView.findViewById(R.id.BPM_graph);
+        BPM_pie = (PieChart)rootView.findViewById(R.id.BPM_pie);
 
         //database connected
         myDb = new DatabaseHelper(getActivity());
@@ -76,12 +88,21 @@ public class BPMFragment extends Fragment {
             ID = res.getString(0);
         }
         newestID = myDb.getNewestDateForSelectedUser(ID);
+        res = myDb.getUserByID(Integer.parseInt(ID));
+        while (res.moveToNext()) {
+            age = Integer.parseInt(res.getString(3));
+        }
+
+        //other functions and variables
+        BPM_check = new BPMTarget();
 
         //chart connected
         drawChart(newestID);
 
-        //other functions and variables
-        BPM_check = new BPMTarget();
+        //pie connected
+        drawPie(newestID);
+
+
 
         return rootView;
     }
@@ -101,16 +122,16 @@ public class BPMFragment extends Fragment {
                 //checking currently chosen user
                 Cursor res = myDb.getIDAndNameOfSelectedUser();
                 while (res.moveToNext()) {
-                    if (ID != res.getString(0)) {
+                    String newID = res.getString(0);
+                    if(!(ID.equals(newID))){
                         ID = res.getString(0);
-                        //checking for newest data connected to user
                         newestID = myDb.getNewestDateForSelectedUser(ID);
                         drawChart(newestID);
+                        drawPie(newestID);
                     }
                 }
                 //getting age of selected user
                 res = myDb.getUserByID(Integer.parseInt(ID));
-                int age = -1; // age of selected user
                 while (res.moveToNext()) {
                     age = Integer.parseInt(res.getString(3));
                 }
@@ -144,6 +165,11 @@ public class BPMFragment extends Fragment {
                         Log.d(TAG, "no data to average");
                         ex.printStackTrace();
                     }
+                }
+
+                if(++pieCounter == 20){
+                    pieCounter = 0;
+                    drawPie(newestID);
                 }
 
                 //appending chart with newly received data
@@ -230,5 +256,55 @@ public class BPMFragment extends Fragment {
         data = new LineData(dataSets);
         BPM_chart.setData(data);
         BPM_chart.invalidate();
+    }
+
+    private void drawPie(String newID){
+        pieEntries = new ArrayList<>();
+        BPM_pie.setUsePercentValues(true);
+        BPM_pie.setDrawRoundedSlices(true);
+        BPM_pie.setDrawEntryLabels(false);
+        BPM_pie.setHoleColor(Color.parseColor("#00000000"));
+        ArrayList<Integer> colors = new ArrayList<>();
+        colors.add(Color.rgb(170, 255, 156));
+        colors.add(Color.rgb(0, 202, 209));
+        colors.add(Color.rgb(56, 196, 0));
+        colors.add(Color.rgb(255, 208, 0));
+        colors.add(Color.rgb(255, 115, 0));
+        colors.add(Color.rgb(255, 96, 71));
+        colors.add(Color.rgb(189, 26, 0));
+
+        Cursor res = myDb.getAllData_user_date(newID);
+        int rest = 0, low = 0, mod = 0, aero = 0, vig = 0, max = 0, over = 0;
+        while(res.moveToNext()){
+            int BPM = Integer.parseInt(res.getString(3));
+            String range = BPM_check.BPM_check(BPM, age);
+            if (range == "Rest") {
+                rest++;
+            } else if (range == "Low Intensity") {
+                low++;
+            } else if (range == "Moderate") {
+                mod++;
+            } else if (range == "Aerobic") {
+                aero++;
+            } else if (range == "Vigorous") {
+                vig++;
+            } else if (range == "Max Effort") {
+                max++;
+            } else if (range == "Over Limit") {
+                over++;
+            }
+        }
+        pieEntries.add(new PieEntry(rest, "Rest"));
+        pieEntries.add(new PieEntry(low, "Low Intensity"));
+        pieEntries.add(new PieEntry(mod, "Moderate"));
+        pieEntries.add(new PieEntry(aero, "Aerobic"));
+        pieEntries.add(new PieEntry(vig, "Vigorous"));
+        pieEntries.add(new PieEntry(max, "Max Effort"));
+        pieEntries.add(new PieEntry(over, "Over Limit"));
+        PieDataSet pieDataSet = new PieDataSet(pieEntries, "BPM");
+        pieDataSet.setColors(colors);
+        pieData = new PieData(pieDataSet);
+        BPM_pie.setData(pieData);
+        BPM_pie.invalidate();
     }
 }

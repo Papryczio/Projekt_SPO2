@@ -21,17 +21,24 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 public class BT_Service extends Service {
+    //log.d tag
+    private static final String TAG = "BT_Service";
 
+    //values
     private int BPM = 0;
     private int SPO2 = 0;
+
     private String[] temp = new String[4];
+
+    //database related
     private DatabaseHelper db;
     private int User_ID = -1;
     private int Date_ID = -1;
+
+    //bluetooth connection related
     private BluetoothDevice mDevice;
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
-    private static final String TAG = "BT_Service";
     private boolean mIsBluetoothConnected = false;
     private ReadInput mReadThread = null;
 
@@ -167,10 +174,6 @@ public class BT_Service extends Service {
 
     }
 
-    private void msg(String s) {
-        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-    }
-
     private class ReadInput implements Runnable {
 
         private boolean bStop = false;
@@ -190,16 +193,18 @@ public class BT_Service extends Service {
             InputStream inputStream;
             try {
                 inputStream = mBTSocket.getInputStream();
+                //for as long as bluetooth is connected
                 while (!bStop) {
                     byte[] buffer = new byte[256];
+                    //if there is data available
                     if (inputStream.available() > 0) {
                         inputStream.read(buffer);
                         int i = 0;
-
                         for (i = 0; i < buffer.length && buffer[i] != 0; i++) {
                         }
                         final String strInput = new String(buffer, 0, i);
 
+                        //split buffer with new lines
                         temp = strInput.split("\n");
                         if (!(temp[0].trim().equals("0")) && !(temp[0].trim().equals("1"))) {
                             try {

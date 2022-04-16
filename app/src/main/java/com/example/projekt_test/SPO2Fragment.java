@@ -18,10 +18,14 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
@@ -33,9 +37,10 @@ public class SPO2Fragment extends Fragment {
 
     //GUI elements
     private TextView textValue;
-    private TextView AVGspo2;
-    private CircularProgressBar SPO2bar;
+    private TextView SPO2_avg;
+    private CircularProgressBar SPO2_bar;
     private LineChart SPO2_chart;
+    private PieChart SPO2_pie;
 
     //database connected
     private DatabaseHelper myDb;
@@ -46,9 +51,14 @@ public class SPO2Fragment extends Fragment {
     private ArrayList<ILineDataSet> dataSets;
     private LineData data;
 
+    //pie connected
+    private ArrayList<PieEntry> pieEntries;
+    private PieData pieData;
+
     //other functions and variables
     private int SPO2_value = 0;
-    private int AVGcounter = 0;
+    private int counter_avg = 0;
+    private int counter_pie = 0;
     private String ID = "";
     private String newestID = "";
 
@@ -64,10 +74,11 @@ public class SPO2Fragment extends Fragment {
 
         //GUI elements
         textValue = (TextView) rootView.findViewById(R.id.textView_SPO2_Value);
-        AVGspo2 = (TextView) rootView.findViewById(R.id.textView_AVGSPO2);
-        SPO2bar = (CircularProgressBar) rootView.findViewById(R.id.progressBar_SPO2);
+        SPO2_avg = (TextView) rootView.findViewById(R.id.textView_AVGSPO2);
+        SPO2_bar = (CircularProgressBar) rootView.findViewById(R.id.progressBar_SPO2);
         SPO2_chart = (LineChart) rootView.findViewById(R.id.SPO2_graph);
-        SPO2bar.setProgressMax(100);
+        SPO2_pie = (PieChart) rootView.findViewById(R.id.SPO2_pie);
+        SPO2_bar.setProgressMax(100);
 
         //datadase connected
         myDb = new DatabaseHelper(getActivity());
@@ -79,6 +90,9 @@ public class SPO2Fragment extends Fragment {
 
         //chart connected
         drawChart(newestID);
+
+        //pie connected
+        drawPie(newestID);
 
         //other functions and variables
 
@@ -95,21 +109,23 @@ public class SPO2Fragment extends Fragment {
             if (current_SPO2 != null) {
                 SPO2_value = Integer.parseInt(current_SPO2);
                 textValue.setText(current_SPO2);
-                SPO2bar.setProgress(SPO2_value);
+                SPO2_bar.setProgress(SPO2_value);
 
                 //checking currently chosen user
                 Cursor res = myDb.getIDAndNameOfSelectedUser();
                 while(res.moveToNext()){
-                    if(ID != res.getString(0)){
+                    String newID = res.getString(0);
+                    if(!(ID.equals(newID))){
                         ID = res.getString(0);
                         newestID = myDb.getNewestDateForSelectedUser(ID);
                         drawChart(newestID);
+                        drawPie(newestID);
                     }
                 }
 
                 //calculating daily average of SPO2 every 5 new data entries
-                if (++AVGcounter == 5) {
-                    AVGcounter = 0;
+                if (++counter_avg == 5) {
+                    counter_avg = 0;
                     int AVGSPO2 = 0;
                     int dataCounter = 0;
                     int AVGSPO2sum = 0;
@@ -126,12 +142,18 @@ public class SPO2Fragment extends Fragment {
                     }
                     try {
                         AVGSPO2 = AVGSPO2sum / dataCounter;
-                        AVGspo2.setText(String.valueOf(AVGSPO2));
+                        SPO2_avg.setText(String.valueOf(AVGSPO2));
                     } catch (Exception ex) {
                         Log.d(TAG, "none data to average");
                         ex.printStackTrace();
                     }
                 }
+
+                if(++counter_pie == 20) {
+                    counter_pie = 0;
+                    drawPie(newestID);
+                }
+
 
                 //appending chart with newly received data
                 String max_data_ID = myDb.maxDataIDatDate(newestID);
@@ -145,16 +167,16 @@ public class SPO2Fragment extends Fragment {
                 //checking for SPO2 range and updating GUI
                 if (SPO2_value > 96) {
                     textValue.setTextColor(Color.parseColor("#00ff00"));
-                    SPO2bar.setProgressBarColor(Color.parseColor("#00ff00"));
+                    SPO2_bar.setProgressBarColor(Color.parseColor("#00ff00"));
                 } else if (SPO2_value <= 96 && SPO2_value > 93) {
                     textValue.setTextColor(Color.parseColor("#ffff00"));
-                    SPO2bar.setProgressBarColor(Color.parseColor("#ffff00"));
+                    SPO2_bar.setProgressBarColor(Color.parseColor("#ffff00"));
                 } else if (SPO2_value <= 93 && SPO2_value > 89) {
                     textValue.setTextColor(Color.parseColor("#ffad00"));
-                    SPO2bar.setProgressBarColor(Color.parseColor("#ffad00"));
+                    SPO2_bar.setProgressBarColor(Color.parseColor("#ffad00"));
                 } else if (SPO2_value <= 89) {
                     textValue.setTextColor(Color.parseColor("#ff2300"));
-                    SPO2bar.setProgressBarColor(Color.parseColor("#ff2300"));
+                    SPO2_bar.setProgressBarColor(Color.parseColor("#ff2300"));
                 }
             }
         }
@@ -173,7 +195,6 @@ public class SPO2Fragment extends Fragment {
     //redrawing chart using all data
     private void drawChart(String newID) {
         dataVals = new ArrayList<Entry>();
-        String maxID = myDb.maxDateID();
         Cursor res2 = myDb.getAllData_user_date(newID);
         while (res2.moveToNext()) {
             try {
@@ -198,5 +219,42 @@ public class SPO2Fragment extends Fragment {
         data = new LineData(dataSets);
         SPO2_chart.setData(data);
         SPO2_chart.invalidate();
+    }
+
+    private void drawPie(String newID){
+        pieEntries = new ArrayList<>();
+        SPO2_pie.setUsePercentValues(true);
+        SPO2_pie.setDrawEntryLabels(false);
+        SPO2_pie.setDrawRoundedSlices(true);
+        SPO2_pie.setHoleColor(Color.parseColor("#00000000"));
+        ArrayList<Integer> colors = new ArrayList<>();
+        colors.add(Color.parseColor("#00ff00"));
+        colors.add(Color.parseColor("#ffff00"));
+        colors.add(Color.parseColor("#ffad00"));
+        colors.add(Color.parseColor("#ff2300"));
+
+        Cursor res = myDb.getAllData_user_date(newID);
+        int greenRange = 0, yellowRange = 0, orangeRange = 0, redRange = 0;
+        while (res.moveToNext()) {
+            int SPO2 = Integer.parseInt(res.getString(4));
+            if (SPO2 > 96) {
+                greenRange++;
+            } else if (SPO2 <= 96 && SPO2 > 93) {
+                yellowRange++;
+            } else if (SPO2 <= 93 && SPO2 > 89) {
+                orangeRange++;
+            } else if (SPO2 <= 89) {
+                redRange++;
+            }
+        }
+        pieEntries.add(new PieEntry(greenRange, "Excellent"));
+        pieEntries.add(new PieEntry(yellowRange, "Good"));
+        pieEntries.add(new PieEntry(orangeRange, "Bad"));
+        pieEntries.add(new PieEntry(redRange, "Horrible"));
+        PieDataSet pieDataSet = new PieDataSet(pieEntries,"SPO2");
+        pieDataSet.setColors(colors);
+        pieData = new PieData(pieDataSet);
+        SPO2_pie.setData(pieData);
+        SPO2_pie.invalidate();
     }
 }

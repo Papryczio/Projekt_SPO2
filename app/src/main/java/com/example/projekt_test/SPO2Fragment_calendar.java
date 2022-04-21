@@ -69,8 +69,14 @@ public class SPO2Fragment_calendar extends Fragment {
         //database
         myDb = new DatabaseHelper(getActivity());
         if(!date_ID.equals("")) {
+            SPO2_chart.setVisibility(View.VISIBLE);
+            SPO2_pie.setVisibility(View.VISIBLE);
             drawChart(date_ID);
             drawPie(date_ID);
+        }
+        else{
+            SPO2_chart.setVisibility(View.INVISIBLE);
+            SPO2_pie.setVisibility(View.INVISIBLE);
         }
 
         return rootView;
@@ -100,6 +106,16 @@ public class SPO2Fragment_calendar extends Fragment {
         dataSets = new ArrayList<>();
         dataSets.add(lineDataSet);
 
+        data = new LineData(dataSets);
+        SPO2_chart.setData(data);
+        SPO2_chart.invalidate();
+    }
+
+    private void drawEmptyChart(){
+        dataVals = new ArrayList<Entry>();
+        lineDataSet = new LineDataSet(dataVals, "SPO2");
+        dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
         data = new LineData(dataSets);
         SPO2_chart.setData(data);
         SPO2_chart.invalidate();
@@ -138,6 +154,15 @@ public class SPO2Fragment_calendar extends Fragment {
         PieDataSet pieDataSet = new PieDataSet(pieEntries,"SPO2");
         pieDataSet.setColors(colors);
         pieData = new PieData(pieDataSet);
+        SPO2_pie.setData(pieData);
+        SPO2_pie.invalidate();
+    }
+
+    private void drawEmptyPie(){
+        pieEntries = new ArrayList<>();
+        PieDataSet pieDataSet = new PieDataSet(pieEntries, "SPO2");
+        pieData = new PieData(pieDataSet);
+        SPO2_pie.setHoleColor(Color.parseColor("#00000000"));
         SPO2_pie.setData(pieData);
         SPO2_pie.invalidate();
     }

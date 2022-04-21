@@ -23,6 +23,7 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import java.sql.Array;
 import java.util.ArrayList;
 
 public class BPMFragment_calendar extends Fragment {
@@ -78,8 +79,14 @@ public class BPMFragment_calendar extends Fragment {
             while (res.moveToNext()) {
                 age = Integer.parseInt(res.getString(3));
             }
+            BPM_chart.setVisibility(View.VISIBLE);
+            BPM_pie.setVisibility(View.VISIBLE);
             drawChart(date_ID);
             drawPie(date_ID);
+        }
+        else{
+            BPM_chart.setVisibility(View.INVISIBLE);
+            BPM_pie.setVisibility(View.INVISIBLE);
         }
 
         return rootView;
@@ -104,6 +111,16 @@ public class BPMFragment_calendar extends Fragment {
         Description description = new Description();
         description.setText("BPM");
         BPM_chart.setDescription(description);
+        dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
+        data = new LineData(dataSets);
+        BPM_chart.setData(data);
+        BPM_chart.invalidate();
+    }
+
+    private void drawEmptyChart(){
+        dataVals = new ArrayList<Entry>();
+        lineDataSet = new LineDataSet(dataVals, "BPM");
         dataSets = new ArrayList<>();
         dataSets.add(lineDataSet);
         data = new LineData(dataSets);
@@ -157,6 +174,15 @@ public class BPMFragment_calendar extends Fragment {
         PieDataSet pieDataSet = new PieDataSet(pieEntries, "BPM");
         pieDataSet.setColors(colors);
         pieData = new PieData(pieDataSet);
+        BPM_pie.setData(pieData);
+        BPM_pie.invalidate();
+    }
+
+    private void drawEmptyPie(){
+        pieEntries = new ArrayList<>();
+        PieDataSet pieDataSet = new PieDataSet(pieEntries, "BPM");
+        pieData = new PieData(pieDataSet);
+        BPM_pie.setHoleColor(Color.parseColor("#00000000"));
         BPM_pie.setData(pieData);
         BPM_pie.invalidate();
     }

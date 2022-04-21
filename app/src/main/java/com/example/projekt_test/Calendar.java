@@ -79,7 +79,6 @@ public class Calendar extends AppCompatActivity {
                 }
                 res = myDb.checkExistenceOfUserAndDate(String.valueOf(ID), localDate.toString());
                 if (res != null) {
-
                     while (res.moveToNext()) {
                         date_ID = res.getString(0);
                     }
@@ -87,10 +86,10 @@ public class Calendar extends AppCompatActivity {
                     viewPager2.setAdapter(pagerAdapterCalendar);
                 } else {
                     Toast.makeText(getApplicationContext(),"No data available", Toast.LENGTH_LONG).show();
+                    pagerAdapterCalendar = new PagerAdapterCalendar(Calendar.this, tabLayout.getTabCount(), "", "");
+                    viewPager2.setAdapter(pagerAdapterCalendar);
                 }
             }
         });
-
-
     }
 }
